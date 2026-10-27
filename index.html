@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#5546d8">
+<title>Ordenando mis actividades</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#252744}
+header{background:#5546d8;color:white;padding:22px 18px}
+header h1{margin:0;font-size:24px}
+header p{margin:8px 0 0}
+nav{display:flex;gap:8px;padding:12px;overflow-x:auto;background:white}
+nav button{border:0;border-radius:10px;padding:12px;background:#ecebff;color:#4034aa;font-weight:bold;cursor:pointer}
+nav button.active{background:#5546d8;color:white}
+main{max-width:850px;margin:auto;padding:16px}
+.panel{background:white;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 3px 14px #2221}
+h2{margin-top:0}
+input,select,textarea{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccc;border-radius:9px;font-size:16px}
+button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-radius:9px;font-weight:bold;cursor:pointer}
+.notice{background:#fff0c9;border-left:6px solid #ef9b00;padding:15px;border-radius:10px;margin-bottom:16px}
+.task{padding:13px;margin:10px 0;border-radius:10px;background:#f5f5fa;border-left:7px solid #28a36a}
+.task.importante{border-color:#e7a000}
+.task.urgente{border-color:#e53935;background:#fff0f0}
+.task small{display:block;margin-top:7px;color:#555}
+.task button{margin-top:10px;margin-right:6px;padding:8px;border:0;border-radius:7px;cursor:pointer}
+.hidden{display:none}
+.legend span{display:inline-block;margin:4px 8px 4px 0}
+footer{text-align:center;color:#666;padding:20px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 ORDENANDO MIS ACTIVIDADES</h1>
+<p>Organizá tus tareas a tu manera. ¡Vos podés!</p>
+</header>
+<nav>
+<button class="active" data-tab="inicio">🏠 Inicio</button>
+<button data-tab="tareas">📝 Mis tareas</button>
+<button data-tab="calendario">📅 Calendario</button>
+</nav>
+<main>
+<section id="inicio">
+<div id="avisos"></div>
+<div class="panel">
+<h2>¡Hola! 👋</h2>
+<p>Este es tu espacio para organizar el estudio, recordar entregas y avanzar paso a paso.</p>
+<p id="resumen"></p>
+<button class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea</button>
+</div>
+<div class="panel">
+<h2>🎨 Colores de prioridad</h2>
+<div class="legend">
+<span>🟢 Normal</span>
+<span>🟡 Importante</span>
+<span>🔴 Urgente</span>
+</div>
+<p>Los colores te ayudan a saber qué necesita tu atención primero.</p>
+</div>
+<div class="panel">
+<h2>📌 Próximas tareas</h2>
+<div id="proximas"></div>
+</div>
+</section>
+<section id="tareas" class="hidden">
+<div class="panel">
+<h2>➕ Agregar una tarea</h2>
+<form id="formulario">
+<label for="titulo">¿Qué tenés que hacer?</label>
+<input id="titulo" required maxlength="120" placeholder="Ej.: estudiar para Matemática">
+<label for="materia">Materia o actividad</label>
+<input id="materia" placeholder="Ej.: Matemática">
+<label for="fecha">Fecha de entrega</label>
+<input id="fecha" type="date" required>
+<label for="prioridad">Prioridad</label>
+<select id="prioridad">
+<option value="normal">🟢 Normal</option>
+<option value="importante">🟡 Importante</option>
+<option value="urgente">🔴 Urgente</option>
+</select>
+<label for="detalle">Notas (opcional)</label>
+<textarea id="detalle" rows="2" placeholder="¿Qué necesitás recordar?"></textarea>
+<button class="primary" type="submit">Guardar tarea</button>
+</form>
+</div>
+<div class="panel">
+<h2>Mis tareas guardadas</h2>
+<div id="lista"></div>
+</div>
+</section>
+<section id="calendario" class="hidden">
+<div class="panel">
+<h2>📅 Calendario de actividades</h2>
+<label for="mes">Elegí una fecha para consultar tus tareas</label>
+<input id="mes" type="date">
+<div class="legend">
+<span>🟢 Normal</span><span>🟡 Importante</span><span>🔴 Urgente</span>
+</div>
+<div id="dia"></div>
+</div>
+<div class="panel">
+<h2>Todas las fechas</h2>
+<div id="fechas"></div>
+</div>
+</section>
+</main>
+<footer>Tus tareas se guardan en este dispositivo. Recordá conservar una copia si cambiás de dispositivo.</footer>
+<script>
+const clave="ordenando-actividades-v1";
+let tareas=[];
+try{tareas=JSON.parse(localStorage.getItem(clave)||"[]");if(!Array.isArray(tareas))tareas=[]}catch(e){tareas=[]}
+const $=id=>document.getElementById(id);
+function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
+function fechaTexto(f){if(!f)return "Sin fecha";return new Date(f+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}
+function tarjeta(t){
+const vencida=t.fecha<new Date().toLocaleDateString("sv-SE");
+return `<div class="task ${t.prioridad}">
+<strong>${escapar(t.titulo)}</strong>
+<small>${escapar(t.materia||"Actividad general")} · ${fechaTexto(t.fecha)}</small>
+${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
+<small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
+<button onclick="completar('${t.id}')">✓ Completar</button>
+<button onclick="eliminar('${t.id}')">🗑 Eliminar</button>
+</div>`;
+}
+function escapar(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function actualizar(){
+const hoy=new Date().toLocaleDateString("sv-SE");
+const pendientes=tareas.filter(t=>!t.hecha);
+const proximas=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE"));
+$("avisos").innerHTML=proximas.length?`<div class="notice"><strong>🔔 ¡ATENCIÓN! TENÉS TAREAS POR VENCER</strong><p>${proximas.map(t=>escapar(t.titulo)+" — "+fechaTexto(t.fecha)).join("<br>")}</p></div>`:"";
+$("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
+$("proximas").innerHTML=pendientes.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,5).map(tarjeta).join("")||"Todavía no tenés tareas. ¡Podés agregar la primera!";
+$("lista").innerHTML=tareas.filter(t=>!t.hecha).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"No tenés tareas pendientes.";
+$("fechas").innerHTML=tareas.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"Todavía no hay tareas.";
+consultarDia();
+}
+function mostrar(tab){
+document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+$(tab).classList.remove("hidden");
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+actualizar();
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>mostrar(b.dataset.tab)));
+$("formulario").addEventListener("submit",e=>{
+e.preventDefault();
+tareas.push({id:Date.now().toString(),titulo:$("titulo").value.trim(),materia:$("materia").value.trim(),fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim(),hecha:false});
+guardar();e.target.reset();mostrar("tareas");
+});
+function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
+function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
+function consultarDia(){
+const f=$("mes").value;
+$("dia").innerHTML=f?((tareas.filter(t=>t.fecha===f).map(tarjeta).join(""))||"No hay tareas para esa fecha."):"Elegí una fecha para ver las tareas.";
+}
+$("mes").value=new Date().toLocaleDateString("sv-SE");
+$("mes").addEventListener("change",consultarDia);
+$("fecha").value=new Date().toLocaleDateString("sv-SE");
+actualizar();
+</script>
+</body>
+</html>
