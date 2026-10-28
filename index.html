@@ -94,6 +94,10 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </select>
 <label for="detalle">Notas (opcional)</label>
 <textarea id="detalle" rows="2" placeholder="¿Qué necesitás recordar?"></textarea>
+<label for="archivosTarea">📎 Adjuntar archivos</label>
+<input id="archivosTarea" type="file" multiple>
+<small style="display:block;color:#666;margin-top:-8px;margin-bottom:12px">Podés elegir varios archivos. Se guardan en este navegador y se conservan al editar la tarea.</small>
+<div id="adjuntosEdicion"></div>
 <button class="primary" id="guardarTarea" type="submit">Guardar tarea</button>
 <button type="button" id="cancelarEdicion" class="hidden" style="margin-left:8px;padding:12px;border:0;border-radius:9px;cursor:pointer" onclick="cancelarEdicionTarea()">Cancelar edición</button>
 </form>
@@ -134,7 +138,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <section id="copias" class="hidden">
 <div class="panel">
 <h2>🛟 Copia de seguridad</h2>
-<p>Guardá tus tareas y materias en un archivo para poder recuperarlas más adelante o pasarlas a otro dispositivo.</p>
+<p>Guardá tus tareas y materias en un archivo para poder recuperarlas más adelante o pasarlas a otro dispositivo. <strong>Importante:</strong> esta copia JSON no incluye los archivos adjuntos; estos quedan guardados en este navegador.</p>
 <button class="primary" type="button" onclick="exportarCopia()">⬇️ Descargar copia de seguridad</button>
 <label for="archivoCopia" style="display:block;margin-top:16px;font-weight:bold">Recuperar una copia guardada</label>
 <input id="archivoCopia" type="file" accept=".json,application/json">
@@ -191,6 +195,12 @@ $("administrarMaterias").addEventListener("click",function(e){
 });
 let tareaEditando=null;
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
+const nombreBDAdjuntos="ordenando-actividades-archivos-v1";let promesaBDAdjuntos=null;
+function abrirBDAdjuntos(){if(!("indexedDB" in window))return Promise.reject(new Error("Almacenamiento de archivos no disponible."));if(promesaBDAdjuntos)return promesaBDAdjuntos;promesaBDAdjuntos=new Promise((resolve,reject)=>{const req=indexedDB.open(nombreBDAdjuntos,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("archivos"))req.result.createObjectStore("archivos",{keyPath:"id"});};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});return promesaBDAdjuntos;}
+async function guardarArchivoAdjunto(archivo){const db=await abrirBDAdjuntos();const id=(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2));await new Promise((resolve,reject)=>{const tx=db.transaction("archivos","readwrite");tx.objectStore("archivos").put({id:id,blob:archivo});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});return {id:id,nombre:archivo.name,tipo:archivo.type||"application/octet-stream",tamano:archivo.size};}
+async function obtenerArchivoAdjunto(id){const db=await abrirBDAdjuntos();return new Promise((resolve,reject)=>{const req=db.transaction("archivos","readonly").objectStore("archivos").get(id);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}
+async function borrarArchivoAdjunto(id){const db=await abrirBDAdjuntos();return new Promise((resolve,reject)=>{const tx=db.transaction("archivos","readwrite");tx.objectStore("archivos").delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
+function abrirAdjunto(idTarea,idArchivo){const ventana=window.open("about:blank","_blank");obtenerArchivoAdjunto(idArchivo).then(reg=>{if(!reg||!reg.blob)throw Error("Archivo no encontrado");const url=URL.createObjectURL(reg.blob);if(ventana)ventana.location.href=url;else{const a=document.createElement("a");a.href=url;a.download=reg.blob.name||"archivo-adjunto";a.click();}setTimeout(()=>URL.revokeObjectURL(url),60000);}).catch(()=>{if(ventana)ventana.close();alert("No se pudo abrir el archivo adjunto.");});}
 function exportarCopia(){
   const copia={formato:"ordenando-mis-actividades",version:1,fechaExportacion:new Date().toISOString(),tareas:tareas,materiasPersonalizadas:materiasPersonalizadas};
   const archivo=new Blob([JSON.stringify(copia,null,2)],{type:"application/json"});
@@ -235,6 +245,7 @@ return `<div class="task ${t.prioridad}">
 <strong>${escapar(t.titulo)}</strong>
 <small>${escapar(t.materia||"Actividad general")} · ${fechaTexto(t.fecha)}</small>
 ${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
+${Array.isArray(t.adjuntos)&&t.adjuntos.length?`<div style="margin-top:9px;padding:9px;background:#fff;border-radius:8px"><strong>📎 Archivos adjuntos</strong><div>${t.adjuntos.map(a=>`<button type="button" onclick="abrirAdjunto(&quot;${t.id}&quot;,&quot;${a.id}&quot;)">📄 ${escapar(a.nombre)}</button>`).join("")}</div></div>`:""}
 <small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
 <button onclick="completar('${t.id}')">✓ Completar</button>
 <button onclick="editarTarea('${t.id}')">✏️ Editar</button>
@@ -264,21 +275,28 @@ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b
 actualizar();
 }
 document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>mostrar(b.dataset.tab)));
-$("formulario").addEventListener("submit",e=>{
+$("formulario").addEventListener("submit",async e=>{
 e.preventDefault();
+const botonGuardar=$("guardarTarea");if(botonGuardar.disabled)return;botonGuardar.disabled=true;const textoOriginal=botonGuardar.textContent;botonGuardar.textContent="Guardando...";
+try{
 const materiaElegida=$("materia").value.trim();
 guardarMateriaNueva(materiaElegida);
 const datos={titulo:$("titulo").value.trim(),materia:materiaElegida,fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim()};
-if(tareaEditando){const existente=tareas.find(t=>t.id===tareaEditando);if(existente)Object.assign(existente,datos);cancelarEdicionTarea();}
-else{tareas.push({id:Date.now().toString(),...datos,hecha:false});e.target.reset();}
+const archivosElegidos=Array.from($("archivosTarea").files||[]);const nuevos=[];for(const archivo of archivosElegidos)nuevos.push(await guardarArchivoAdjunto(archivo));
+if(tareaEditando){const existente=tareas.find(t=>t.id===tareaEditando);if(existente){Object.assign(existente,datos);existente.adjuntos=(existente.adjuntos||[]).concat(nuevos);}cancelarEdicionTarea();}
+else{tareas.push({id:Date.now().toString(),...datos,adjuntos:nuevos,hecha:false});e.target.reset();mostrarAdjuntosEdicion();}
 guardar();mostrar("tareas");
+}catch(err){alert("No se pudo guardar la tarea o alguno de sus archivos. Probá nuevamente.");}
+finally{botonGuardar.disabled=false;botonGuardar.textContent=textoOriginal;}
 });
 function editarTarea(id){
 const t=tareas.find(t=>t.id===id);if(!t)return;
 tareaEditando=id;$("titulo").value=t.titulo||"";$("materia").value=t.materia||"";$("fecha").value=t.fecha||"";$("prioridad").value=t.prioridad||"normal";$("detalle").value=t.detalle||"";
 $("tituloFormulario").textContent="✏️ Editar tarea";$("guardarTarea").textContent="Guardar cambios";$("cancelarEdicion").classList.remove("hidden");mostrar("tareas");$("titulo").focus();
 }
-function cancelarEdicionTarea(){tareaEditando=null;$("formulario").reset();$("tituloFormulario").textContent="➕ Agregar una tarea";$("guardarTarea").textContent="Guardar tarea";$("cancelarEdicion").classList.add("hidden");}
+function cancelarEdicionTarea(){tareaEditando=null;$("formulario").reset();$("tituloFormulario").textContent="➕ Agregar una tarea";$("guardarTarea").textContent="Guardar tarea";$("cancelarEdicion").classList.add("hidden");mostrarAdjuntosEdicion();}
+function mostrarAdjuntosEdicion(){const zona=$("adjuntosEdicion");if(!zona)return;const t=tareaEditando?tareas.find(x=>x.id===tareaEditando):null;const lista=t&&Array.isArray(t.adjuntos)?t.adjuntos:[];zona.innerHTML=lista.length?"<div style=\"padding:10px;margin-bottom:12px;background:#f5f5fa;border-radius:9px\"><strong>📎 Archivos ya adjuntos</strong>"+lista.map(a=>"<div style=\"padding:6px 0\">📄 "+escapar(a.nombre)+" <button type=\"button\" data-quitar-adjunto=\""+escapar(a.id)+"\">Quitar</button></div>").join("")+"</div>":"";}
+$("adjuntosEdicion").addEventListener("click",async function(e){const b=e.target.closest("[data-quitar-adjunto]");if(!b||!tareaEditando)return;const t=tareas.find(x=>x.id===tareaEditando);if(!t)return;const id=b.getAttribute("data-quitar-adjunto");if(!confirm("¿Querés quitar este archivo de la tarea?"))return;try{await borrarArchivoAdjunto(id);}catch(err){alert("No se pudo quitar el archivo.");return;}t.adjuntos=(t.adjuntos||[]).filter(a=>a.id!==id);mostrarAdjuntosEdicion();});
 function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
 
