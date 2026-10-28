@@ -72,6 +72,10 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <button class="primary" type="button" id="activarRecordatorios" onclick="activarRecordatorios()" style="margin-top:10px;background:#14804a">🔔 Activar recordatorios</button>
 <p style="font-size:13px;color:#666;margin-bottom:0">Los avisos del navegador funcionan si este sitio está abierto y diste permiso para enviar notificaciones.</p>
 </div>
+<div id="panelAlertasTareas" class="panel hidden" aria-live="polite">
+<h2>🚨 Alertas de tareas</h2>
+<div id="alertasTareas"></div>
+</div>
 <div class="panel">
 <h2>📊 Tu día de estudio</h2>
 <div id="estadisticasInicio" class="estadisticas"></div>
@@ -321,6 +325,16 @@ const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)<hoy && Stri
 const urgentes=pendientes.filter(t=>t.prioridad==="urgente");
 $("estadisticasInicio").innerHTML=`<div class="estadistica"><div class="estadistica-icono">📋</div><strong>${pendientes.length}</strong><span>Pendientes</span></div><div class="estadistica hoy"><div class="estadistica-icono">📅</div><strong>${vencenHoy.length}</strong><span>Vencen hoy</span></div><div class="estadistica atrasadas"><div class="estadistica-icono">⏰</div><strong>${atrasadas.length}</strong><span>Atrasadas</span></div><div class="estadistica urgentes"><div class="estadistica-icono">⚡</div><strong>${urgentes.length}</strong><span>Urgentes</span></div>`;
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
+const alertas=pendientes.filter(t=>{const f=String(t.fecha||"").slice(0,10);return f&&f<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE");}).sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||""));
+const panelAlertas=$("panelAlertasTareas");
+const zonaAlertas=$("alertasTareas");
+if(alertas.length){
+  panelAlertas.classList.remove("hidden");
+  zonaAlertas.innerHTML=alertas.map(t=>{const f=String(t.fecha||"").slice(0,10);const estado=f<hoy?"⚠️ TAREA VENCIDA":f===hoy?"📌 VENCE HOY":"🗓️ Próxima: "+fechaTexto(f);return `<div class="notice"><strong>${estado}</strong><p>${escapar(t.titulo)}${t.materia?" · 📚 "+escapar(t.materia):""}<br>Fecha: ${fechaTexto(f)}</p></div>`;}).join("")+'<button type="button" class="primary" onclick="mostrar(\'guardadas\');renderizarLista(true)">📋 Ver mis tareas</button>';
+}else{
+  panelAlertas.classList.add("hidden");
+  zonaAlertas.innerHTML="";
+}
 renderizarLista();
 consultarDia();
 revisarRecordatorios();
