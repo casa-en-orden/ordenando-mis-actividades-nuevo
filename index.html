@@ -138,7 +138,8 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <option value="completadas">Tareas completadas</option>
 </select>
 <button type="button" class="primary" id="limpiarFiltros" style="margin-bottom:12px">Limpiar búsqueda y filtros</button>
-<div id="lista" aria-live="polite"></div>
+<p id="ayudaLista" style="color:#666;margin:4px 0 12px">Las tareas aparecerán acá cuando busques o elijas un filtro.</p>
+<div id="lista" aria-live="polite" class="hidden"></div>
 </div>
 </section>
 <section id="calendario" class="hidden">
@@ -330,9 +331,11 @@ $("fechas").innerHTML=tareas.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha))
 consultarDia();
 revisarRecordatorios();
 }
-function renderizarLista(){
+function renderizarLista(mostrarResultados=false){
   const zona=$("lista");
   if(!zona)return;
+  const ayuda=$("ayudaLista");
+  if(mostrarResultados){zona.classList.remove("hidden");if(ayuda)ayuda.classList.add("hidden");}
   const buscar=($("buscarTareas")?.value||"").trim().toLocaleLowerCase("es");
   const materia=$("filtroMateria")?.value||"";
   const prioridad=$("filtroPrioridad")?.value||"";
@@ -360,13 +363,15 @@ function actualizarMateriasFiltro(){
 }
 ["buscarTareas","filtroMateria","filtroPrioridad","filtroEstado"].forEach(id=>{
   const control=$(id);
-  if(control)control.addEventListener(id==="buscarTareas"?"input":"change",renderizarLista);
+  if(control)control.addEventListener(id==="buscarTareas"?"input":"change",()=>renderizarLista(true));
 });
 $("limpiarFiltros")?.addEventListener("click",()=>{
   $("buscarTareas").value="";
   $("filtroMateria").value="";
   $("filtroPrioridad").value="";
   $("filtroEstado").value="pendientes";
+  $("lista").classList.add("hidden");
+  $("ayudaLista").classList.remove("hidden");
   renderizarLista();
 });
 function mostrar(tab){
