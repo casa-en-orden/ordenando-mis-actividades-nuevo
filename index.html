@@ -51,6 +51,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <nav>
 <button class="active" data-tab="inicio">🏠 Inicio</button>
 <button data-tab="tareas">📝 Mis tareas</button>
+<button data-tab="guardadas">📋 Mis tareas guardadas</button>
 <button data-tab="calendario">📅 Calendario</button>
 <button data-tab="copias">🛟 Copia de seguridad</button>
 </nav>
@@ -106,8 +107,11 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </div>
 <p>Los colores te ayudan a saber qué necesita tu atención primero.</p>
 </div>
+</section>
+<section id="guardadas" class="hidden">
 <div class="panel">
-<h2>Mis tareas guardadas</h2>
+<h2>📋 Mis tareas guardadas</h2>
+<p>Acá podés consultar y administrar las tareas que guardaste. Las tareas completadas dejan de aparecer en esta lista.</p>
 <div id="lista"></div>
 </div>
 </section>
