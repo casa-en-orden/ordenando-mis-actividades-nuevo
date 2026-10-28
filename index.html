@@ -82,7 +82,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </section>
 <section id="tareas" class="hidden">
 <div class="panel">
-<h2>➕ Agregar una tarea</h2>
+<h2 id="tituloFormulario">➕ Agregar una tarea</h2>
 <form id="formulario">
 <label for="titulo">¿Qué tenés que hacer?</label>
 <input id="titulo" required maxlength="120" placeholder="Ej.: estudiar para Matemática">
@@ -101,7 +101,8 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </select>
 <label for="detalle">Notas (opcional)</label>
 <textarea id="detalle" rows="2" placeholder="¿Qué necesitás recordar?"></textarea>
-<button class="primary" type="submit">Guardar tarea</button>
+<button class="primary" id="guardarTarea" type="submit">Guardar tarea</button>
+<button type="button" id="cancelarEdicion" class="hidden" style="margin-left:8px;padding:12px;border:0;border-radius:9px;cursor:pointer" onclick="cancelarEdicionTarea()">Cancelar edición</button>
 </form>
 </div>
 <div class="panel">
@@ -173,6 +174,7 @@ $("administrarMaterias").addEventListener("click",function(e){
   e.preventDefault();
   borrarMateriaPersonalizada(boton.getAttribute("data-borrar-materia"));
 });
+let tareaEditando=null;
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
 function fechaTexto(f){if(!f)return "Sin fecha";return new Date(f+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}
 function tarjeta(t){
@@ -183,6 +185,7 @@ return `<div class="task ${t.prioridad}">
 ${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
 <small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
 <button onclick="completar('${t.id}')">✓ Completar</button>
+<button onclick="editarTarea('${t.id}')">✏️ Editar</button>
 <button onclick="eliminar('${t.id}')">🗑 Eliminar</button>
 </div>`;
 }
@@ -213,9 +216,17 @@ $("formulario").addEventListener("submit",e=>{
 e.preventDefault();
 const materiaElegida=$("materia").value.trim();
 guardarMateriaNueva(materiaElegida);
-tareas.push({id:Date.now().toString(),titulo:$("titulo").value.trim(),materia:materiaElegida,fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim(),hecha:false});
-guardar();e.target.reset();mostrar("tareas");
+const datos={titulo:$("titulo").value.trim(),materia:materiaElegida,fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim()};
+if(tareaEditando){const existente=tareas.find(t=>t.id===tareaEditando);if(existente)Object.assign(existente,datos);cancelarEdicionTarea();}
+else{tareas.push({id:Date.now().toString(),...datos,hecha:false});e.target.reset();}
+guardar();mostrar("tareas");
 });
+function editarTarea(id){
+const t=tareas.find(t=>t.id===id);if(!t)return;
+tareaEditando=id;$("titulo").value=t.titulo||"";$("materia").value=t.materia||"";$("fecha").value=t.fecha||"";$("prioridad").value=t.prioridad||"normal";$("detalle").value=t.detalle||"";
+$("tituloFormulario").textContent="✏️ Editar tarea";$("guardarTarea").textContent="Guardar cambios";$("cancelarEdicion").classList.remove("hidden");mostrar("tareas");$("titulo").focus();
+}
+function cancelarEdicionTarea(){tareaEditando=null;$("formulario").reset();$("tituloFormulario").textContent="➕ Agregar una tarea";$("guardarTarea").textContent="Guardar tarea";$("cancelarEdicion").classList.add("hidden");}
 function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
 
