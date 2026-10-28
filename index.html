@@ -118,8 +118,27 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <section id="guardadas" class="hidden">
 <div class="panel">
 <h2>📋 Mis tareas guardadas</h2>
-<p>Acá podés consultar y administrar las tareas que guardaste. Las tareas completadas dejan de aparecer en esta lista.</p>
-<div id="lista"></div>
+<p>Buscá tus tareas con palabras simples o usá los filtros. No se modifica ni se borra nada al buscar.</p>
+<label for="buscarTareas">🔎 Buscar por nombre, materia o notas</label>
+<input id="buscarTareas" type="search" placeholder="Ej.: Matemática, prueba, estudiar">
+<label for="filtroMateria">Materia</label>
+<select id="filtroMateria"><option value="">Todas las materias</option></select>
+<label for="filtroPrioridad">Prioridad</label>
+<select id="filtroPrioridad">
+<option value="">Todas las prioridades</option>
+<option value="normal">🟢 Normal</option>
+<option value="importante">🟡 Importante</option>
+<option value="urgente">🔴 Urgente</option>
+</select>
+<label for="filtroEstado">Estado</label>
+<select id="filtroEstado">
+<option value="pendientes">Tareas pendientes</option>
+<option value="">Todas las tareas</option>
+<option value="vencidas">Tareas vencidas</option>
+<option value="completadas">Tareas completadas</option>
+</select>
+<button type="button" class="primary" id="limpiarFiltros" style="margin-bottom:12px">Limpiar búsqueda y filtros</button>
+<div id="lista" aria-live="polite"></div>
 </div>
 </section>
 <section id="calendario" class="hidden">
@@ -295,6 +314,7 @@ function revisarRecordatorios(){
   try{localStorage.setItem(claveAvisos,JSON.stringify(enviados));}catch(e){}
 }
 function actualizar(){
+actualizarMateriasFiltro();
 const hoy=new Date().toLocaleDateString("sv-SE");
 const pendientes=tareas.filter(t=>!t.hecha);
 const vencenHoy=pendientes.filter(t=>String(t.fecha||"").slice(0,10)===hoy);
@@ -305,11 +325,50 @@ const proximas=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toL
 $("avisos").innerHTML=proximas.length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${proximas.map(t=>"📌 "+escapar(t.titulo)+(t.materia?" · 📚 "+escapar(t.materia):" · Actividad general")+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
 $("proximas").innerHTML=pendientes.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,5).map(tarjeta).join("")||"Todavía no tenés tareas. ¡Podés agregar la primera!";
-$("lista").innerHTML=tareas.filter(t=>!t.hecha).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"No tenés tareas pendientes.";
+renderizarLista();
 $("fechas").innerHTML=tareas.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"Todavía no hay tareas.";
 consultarDia();
 revisarRecordatorios();
 }
+function renderizarLista(){
+  const zona=$("lista");
+  if(!zona)return;
+  const buscar=($("buscarTareas")?.value||"").trim().toLocaleLowerCase("es");
+  const materia=$("filtroMateria")?.value||"";
+  const prioridad=$("filtroPrioridad")?.value||"";
+  const estado=$("filtroEstado")?.value||"pendientes";
+  const hoy=new Date().toLocaleDateString("sv-SE");
+  const coincidencias=tareas.filter(t=>{
+    const texto=[t.titulo,t.materia,t.detalle].join(" ").toLocaleLowerCase("es");
+    if(buscar&&!texto.includes(buscar))return false;
+    if(materia&&(t.materia||"")!==materia)return false;
+    if(prioridad&&(t.prioridad||"normal")!==prioridad)return false;
+    if(estado==="pendientes"&&t.hecha)return false;
+    if(estado==="completadas"&&!t.hecha)return false;
+    if(estado==="vencidas"&&(t.hecha||!t.fecha||t.fecha>=hoy))return false;
+    return true;
+  }).slice().sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||""));
+  zona.innerHTML=coincidencias.map(tarjeta).join("")||'<p>No hay tareas que coincidan. Probá cambiar la búsqueda o los filtros.</p>';
+}
+function actualizarMateriasFiltro(){
+  const selector=$("filtroMateria");
+  if(!selector)return;
+  const elegida=selector.value;
+  const materias=[...new Set(tareas.map(t=>(t.materia||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  selector.innerHTML='<option value="">Todas las materias</option>'+materias.map(m=>'<option value="'+escapar(m)+'">'+escapar(m)+'</option>').join("");
+  if(materias.includes(elegida))selector.value=elegida;
+}
+["buscarTareas","filtroMateria","filtroPrioridad","filtroEstado"].forEach(id=>{
+  const control=$(id);
+  if(control)control.addEventListener(id==="buscarTareas"?"input":"change",renderizarLista);
+});
+$("limpiarFiltros")?.addEventListener("click",()=>{
+  $("buscarTareas").value="";
+  $("filtroMateria").value="";
+  $("filtroPrioridad").value="";
+  $("filtroEstado").value="pendientes";
+  renderizarLista();
+});
 function mostrar(tab){
 document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
 $(tab).classList.remove("hidden");
