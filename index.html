@@ -268,7 +268,7 @@ return `<div class="task ${t.prioridad}">
 ${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
 ${Array.isArray(t.adjuntos)&&t.adjuntos.length?`<div style="margin-top:9px;padding:9px;background:#fff;border-radius:8px"><strong>📎 Archivos adjuntos</strong><div>${t.adjuntos.map(a=>`<button type="button" onclick="abrirAdjunto(&quot;${t.id}&quot;,&quot;${a.id}&quot;)">📄 ${escapar(a.nombre)}</button>`).join("")}</div></div>`:""}
 <small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
-<button onclick="completar('${t.id}')">✓ Completar</button>
+<button onclick="cambiarEstado('${t.id}')">${t.hecha?'↩️ Marcar como pendiente':'✓ Completar'}</button>
 <button onclick="editarTarea(\'${t.id}\')">✏️ Editar</button>
 <button onclick="eliminar('${t.id}')">🗑 Eliminar</button>
 </div>`;
@@ -400,7 +400,7 @@ $("tituloFormulario").textContent="✏️ Editar tarea";$("guardarTarea").textCo
 function cancelarEdicionTarea(){tareaEditando=null;$("formulario").reset();$("tituloFormulario").textContent="➕ Agregar una tarea";$("guardarTarea").textContent="Guardar tarea";$("cancelarEdicion").classList.add("hidden");mostrarAdjuntosEdicion();}
 function mostrarAdjuntosEdicion(){const zona=$("adjuntosEdicion");if(!zona)return;const t=tareaEditando?tareas.find(x=>x.id===tareaEditando):null;const lista=t&&Array.isArray(t.adjuntos)?t.adjuntos:[];zona.innerHTML=lista.length?"<div style=\"padding:10px;margin-bottom:12px;background:#f5f5fa;border-radius:9px\"><strong>📎 Archivos ya adjuntos</strong>"+lista.map(a=>"<div style=\"padding:6px 0\">📄 "+escapar(a.nombre)+" <button type=\"button\" data-quitar-adjunto=\""+escapar(a.id)+"\">Quitar</button></div>").join("")+"</div>":"";}
 $("adjuntosEdicion").addEventListener("click",async function(e){const b=e.target.closest("[data-quitar-adjunto]");if(!b||!tareaEditando)return;const t=tareas.find(x=>x.id===tareaEditando);if(!t)return;const id=b.getAttribute("data-quitar-adjunto");if(!confirm("¿Querés quitar este archivo de la tarea?"))return;try{await borrarArchivoAdjunto(id);}catch(err){alert("No se pudo quitar el archivo.");return;}t.adjuntos=(t.adjuntos||[]).filter(a=>a.id!==id);mostrarAdjuntosEdicion();});
-function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
+function cambiarEstado(id){const t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;guardar();}}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
 
 let fechaCalendarioSeleccionada=new Date().toLocaleDateString("sv-SE");
