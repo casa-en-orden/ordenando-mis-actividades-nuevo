@@ -260,7 +260,7 @@ $("archivoCopia").addEventListener("change",function(e){
   lector.readAsText(archivo);
 });
 function fechaTexto(f){if(!f)return "Sin fecha";return new Date(f+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}
-function tarjeta(t,desdeCalendario=false){
+function tarjeta(t){
 const vencida=t.fecha<new Date().toLocaleDateString("sv-SE");
 return `<div class="task ${t.prioridad}">
 <strong>${escapar(t.titulo)}</strong>
@@ -269,7 +269,7 @@ ${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
 ${Array.isArray(t.adjuntos)&&t.adjuntos.length?`<div style="margin-top:9px;padding:9px;background:#fff;border-radius:8px"><strong>📎 Archivos adjuntos</strong><div>${t.adjuntos.map(a=>`<button type="button" onclick="abrirAdjunto(&quot;${t.id}&quot;,&quot;${a.id}&quot;)">📄 ${escapar(a.nombre)}</button>`).join("")}</div></div>`:""}
 <small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
 <button onclick="completar('${t.id}')">✓ Completar</button>
-<button onclick="${desdeCalendario ? 'editarTareaEnCalendario' : 'editarTarea'}(\'${t.id}\')">✏️ Editar</button>
+<button onclick="editarTarea(\'${t.id}\')">✏️ Editar</button>
 <button onclick="eliminar('${t.id}')">🗑 Eliminar</button>
 </div>`;
 }
@@ -413,32 +413,9 @@ function verTareasDelDia(fecha){
   const completadasDia=delDia.filter(t=>t.hecha).length;
   zona.innerHTML='<div class="detalle-dia"><h3 style="margin-top:0">📅 Tareas del '+fechaTexto(fecha)+'</h3>'+
     '<p aria-live="polite" style="font-weight:bold">⏳ Pendientes: '+pendientesDia+' · ✅ Completadas: '+completadasDia+'</p>'+
-    (delDia.length?delDia.slice().sort((a,b)=>(a.hecha===b.hecha?0:a.hecha?1:-1)||a.titulo.localeCompare(b.titulo,"es")).map(t=>tarjeta(t,true)).join(""):'<p>🎉 No hay tareas programadas para este día.</p>')+
-    '</div><div id="editorCalendario"></div>';
+    (delDia.length?delDia.slice().sort((a,b)=>(a.hecha===b.hecha?0:a.hecha?1:-1)||a.titulo.localeCompare(b.titulo,"es")).map(t=>tarjeta(t)).join(""):'<p>🎉 No hay tareas programadas para este día.</p>')+
+    '</div>';
 }
-function editarTareaEnCalendario(id){
-  const t=tareas.find(x=>x.id===id);if(!t)return;
-  const zona=$("editorCalendario");if(!zona)return;
-  zona.innerHTML='<div class="detalle-dia" style="background:#fff"><h3 style="margin-top:0">✏️ Editar tarea desde el calendario</h3>'+
-    '<form id="formEditarCalendario" onsubmit="guardarEdicionCalendario(event,\''+escapar(t.id)+'\')">'+
-    '<label for="calTitulo">Nombre de la tarea</label><input id="calTitulo" required maxlength="120" value="'+escapar(t.titulo)+'">'+
-    '<label for="calMateria">Materia o actividad</label><input id="calMateria" value="'+escapar(t.materia||'')+'">'+
-    '<label for="calFecha">Fecha de entrega</label><input id="calFecha" type="date" required value="'+escapar(t.fecha||'')+'">'+
-    '<label for="calPrioridad">Prioridad</label><select id="calPrioridad"><option value="normal" '+((t.prioridad||'normal')==='normal'?'selected':'')+'>🟢 Normal</option><option value="importante" '+(t.prioridad==='importante'?'selected':'')+'>🟡 Importante</option><option value="urgente" '+(t.prioridad==='urgente'?'selected':'')+'>🔴 Urgente</option></select>'+
-    '<label for="calDetalle">Notas</label><textarea id="calDetalle" rows="2">'+escapar(t.detalle||'')+'</textarea>'+
-    '<p style="font-size:13px;color:#666">Los archivos adjuntos existentes se conservan.</p>'+
-    '<button class="primary" type="submit">💾 Guardar cambios</button> <button type="button" onclick="cancelarEdicionCalendario()" style="padding:12px;border:0;border-radius:9px;cursor:pointer">Cancelar</button>'+
-    '</form></div>';
-  zona.scrollIntoView({behavior:"auto",block:"start"});$("calTitulo").focus();
-}
-function guardarEdicionCalendario(event,id){
-  event.preventDefault();const t=tareas.find(x=>x.id===id);if(!t)return;
-  const titulo=$("calTitulo").value.trim(),fecha=$("calFecha").value;
-  if(!titulo||!fecha){alert("Completá el nombre y la fecha de la tarea.");return;}
-  t.titulo=titulo;t.materia=$("calMateria").value.trim();t.fecha=fecha;t.prioridad=$("calPrioridad").value;t.detalle=$("calDetalle").value.trim();
-  guardar();verTareasDelDia(fechaCalendarioSeleccionada);
-}
-function cancelarEdicionCalendario(){const zona=$("editorCalendario");if(zona)zona.innerHTML="";}
 function irAHoy(){
   const hoy=new Date().toLocaleDateString("sv-SE");
   $("mes").value=hoy.slice(0,7);
