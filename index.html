@@ -100,6 +100,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <input id="archivosTarea" type="file" multiple>
 <small style="display:block;color:#666;margin-top:-8px;margin-bottom:12px">Podés elegir varios archivos. Se guardan en este navegador y se conservan al editar la tarea.</small>
 <div id="adjuntosEdicion"></div>
+<p id="mensajeGuardado" role="status" aria-live="polite" style="display:none;padding:10px 12px;margin:12px 0 0;background:#e7f7ed;color:#17633a;border-radius:9px;font-weight:bold"></p>
 <button class="primary" id="guardarTarea" type="submit">Guardar tarea</button>
 <button type="button" id="cancelarEdicion" class="hidden" style="margin-left:8px;padding:12px;border:0;border-radius:9px;cursor:pointer" onclick="cancelarEdicionTarea()">Cancelar edición</button>
 </form>
@@ -324,9 +325,9 @@ const materiaElegida=$("materia").value.trim();
 guardarMateriaNueva(materiaElegida);
 const datos={titulo:$("titulo").value.trim(),materia:materiaElegida,fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim()};
 const archivosElegidos=Array.from($("archivosTarea").files||[]);const nuevos=[];for(const archivo of archivosElegidos)nuevos.push(await guardarArchivoAdjunto(archivo));
-if(tareaEditando){const existente=tareas.find(t=>t.id===tareaEditando);if(existente){Object.assign(existente,datos);existente.adjuntos=(existente.adjuntos||[]).concat(nuevos);}cancelarEdicionTarea();}
-else{tareas.push({id:Date.now().toString(),...datos,adjuntos:nuevos,hecha:false});e.target.reset();mostrarAdjuntosEdicion();}
-guardar();mostrar("tareas");
+if(tareaEditando){const existente=tareas.find(t=>t.id===tareaEditando);if(existente){Object.assign(existente,datos);existente.adjuntos=(existente.adjuntos||[]).concat(nuevos);}cancelarEdicionTarea();$("fecha").value=new Date().toLocaleDateString("sv-SE");}
+else{tareas.push({id:Date.now().toString(),...datos,adjuntos:nuevos,hecha:false});e.target.reset();$("fecha").value=new Date().toLocaleDateString("sv-SE");mostrarAdjuntosEdicion();}
+guardar();const mensaje=$("mensajeGuardado");mensaje.textContent=tareaEditando?"":"¡Tarea guardada correctamente!";mensaje.style.display="block";mostrar("tareas");
 }catch(err){alert("No se pudo guardar la tarea o alguno de sus archivos. Probá nuevamente.");}
 finally{botonGuardar.disabled=false;botonGuardar.textContent=textoOriginal;}
 });
