@@ -28,6 +28,17 @@ button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-
 .task button{margin-top:10px;margin-right:6px;padding:8px;border:0;border-radius:7px;cursor:pointer}
 .hidden{display:none}
 .legend span{display:inline-block;margin:4px 8px 4px 0}
+.estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.estadistica{padding:14px 8px;border-radius:12px;background:#f4f3ff;text-align:center}
+.estadistica strong{display:block;font-size:26px;margin-bottom:5px;color:#4034aa}
+.estadistica span{font-size:13px;color:#45455a}
+.estadistica.hoy{background:#eaf7ee}
+.estadistica.hoy strong{color:#21834b}
+.estadistica.atrasadas{background:#fff0f0}
+.estadistica.atrasadas strong{color:#c62828}
+.estadistica.urgentes{background:#fff5df}
+.estadistica.urgentes strong{color:#a96700}
+@media(max-width:520px){.estadisticas{grid-template-columns:repeat(2,minmax(0,1fr))}}
 footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </style>
 </head>
@@ -49,6 +60,10 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <p>Este es tu espacio para organizar el estudio, recordar entregas y avanzar paso a paso.</p>
 <p id="resumen"></p>
 <button class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea</button>
+</div>
+<div class="panel">
+<h2>📊 Tu día de estudio</h2>
+<div id="estadisticasInicio" class="estadisticas"></div>
 </div>
 <div class="panel">
 <h2>🎨 Colores de prioridad</h2>
@@ -174,6 +189,10 @@ function escapar(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<"
 function actualizar(){
 const hoy=new Date().toLocaleDateString("sv-SE");
 const pendientes=tareas.filter(t=>!t.hecha);
+const vencenHoy=pendientes.filter(t=>String(t.fecha||"").slice(0,10)===hoy);
+const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)<hoy && String(t.fecha||"").slice(0,10)!=="");
+const urgentes=pendientes.filter(t=>t.prioridad==="urgente");
+$("estadisticasInicio").innerHTML=`<div class="estadistica"><strong>${pendientes.length}</strong><span>Pendientes</span></div><div class="estadistica hoy"><strong>${vencenHoy.length}</strong><span>Vencen hoy</span></div><div class="estadistica atrasadas"><strong>${atrasadas.length}</strong><span>Atrasadas</span></div><div class="estadistica urgentes"><strong>${urgentes.length}</strong><span>Urgentes</span></div>`;
 const proximas=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE"));
 $("avisos").innerHTML=proximas.length?`<div class="notice"><strong>🔔 ¡ATENCIÓN! TENÉS TAREAS POR VENCER</strong><p>${proximas.map(t=>escapar(t.titulo)+" — "+fechaTexto(t.fecha)).join("<br>")}</p></div>`:"";
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
