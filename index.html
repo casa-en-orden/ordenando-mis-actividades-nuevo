@@ -29,17 +29,19 @@ button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-
 .task button{margin-top:10px;margin-right:6px;padding:8px;border:0;border-radius:7px;cursor:pointer}
 .hidden{display:none}
 .legend span{display:inline-block;margin:4px 8px 4px 0}
-.estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.estadistica{padding:14px 8px;border-radius:12px;background:#f4f3ff;text-align:center}
-.estadistica strong{display:block;font-size:26px;margin-bottom:5px;color:#4034aa}
-.estadistica span{font-size:13px;color:#45455a}
-.estadistica.hoy{background:#eaf7ee}
-.estadistica.hoy strong{color:#21834b}
-.estadistica.atrasadas{background:#fff0f0}
-.estadistica.atrasadas strong{color:#c62828}
-.estadistica.urgentes{background:#fff5df}
-.estadistica.urgentes strong{color:#a96700}
-@media(max-width:520px){.estadisticas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.estadistica{min-height:142px;padding:18px 12px;border:1px solid #dce3f0;border-radius:16px;background:#e8f0ff;box-shadow:0 3px 10px rgba(35,48,90,.08);text-align:left;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.estadistica .estadistica-icono{font-size:25px;line-height:1}
+.estadistica strong{display:block;font-size:32px;line-height:1.1;color:#2856b6}
+.estadistica span{font-size:14px;font-weight:600;color:#2856b6}
+.estadistica.hoy{background:#fff4d8;border-color:#f1d58a}
+.estadistica.hoy strong,.estadistica.hoy span{color:#946200}
+.estadistica.atrasadas{background:#ffe8e8;border-color:#f4bdbd}
+.estadistica.atrasadas strong,.estadistica.atrasadas span{color:#b42323}
+.estadistica.urgentes{background:#e2f7ea;border-color:#b5e5c5}
+.estadistica.urgentes strong,.estadistica.urgentes span{color:#187543}
+@media(max-width:700px){.estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.estadistica{min-height:125px;padding:15px 12px}}
+@media(max-width:360px){.estadisticas{grid-template-columns:1fr}}
 footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </style>
 </head>
@@ -193,7 +195,7 @@ const pendientes=tareas.filter(t=>!t.hecha);
 const vencenHoy=pendientes.filter(t=>String(t.fecha||"").slice(0,10)===hoy);
 const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)<hoy && String(t.fecha||"").slice(0,10)!=="");
 const urgentes=pendientes.filter(t=>t.prioridad==="urgente");
-$("estadisticasInicio").innerHTML=`<div class="estadistica"><strong>${pendientes.length}</strong><span>Pendientes</span></div><div class="estadistica hoy"><strong>${vencenHoy.length}</strong><span>Vencen hoy</span></div><div class="estadistica atrasadas"><strong>${atrasadas.length}</strong><span>Atrasadas</span></div><div class="estadistica urgentes"><strong>${urgentes.length}</strong><span>Urgentes</span></div>`;
+$("estadisticasInicio").innerHTML=`<div class="estadistica"><div class="estadistica-icono">📋</div><strong>${pendientes.length}</strong><span>Pendientes</span></div><div class="estadistica hoy"><div class="estadistica-icono">📅</div><strong>${vencenHoy.length}</strong><span>Vencen hoy</span></div><div class="estadistica atrasadas"><div class="estadistica-icono">⏰</div><strong>${atrasadas.length}</strong><span>Atrasadas</span></div><div class="estadistica urgentes"><div class="estadistica-icono">⚡</div><strong>${urgentes.length}</strong><span>Urgentes</span></div>`;
 const proximas=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE"));
 $("avisos").innerHTML=proximas.length?`<div class="notice"><strong>🔔 ¡ATENCIÓN! TENÉS TAREAS POR VENCER</strong><p>${proximas.map(t=>escapar(t.titulo)+" — "+fechaTexto(t.fecha)).join("<br>")}</p></div>`:"";
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
