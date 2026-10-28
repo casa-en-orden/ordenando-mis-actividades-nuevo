@@ -71,7 +71,9 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <label for="titulo">¿Qué tenés que hacer?</label>
 <input id="titulo" required maxlength="120" placeholder="Ej.: estudiar para Matemática">
 <label for="materia">Materia o actividad</label>
-<input id="materia" placeholder="Ej.: Matemática">
+<input id="materia" list="opcionesMaterias" placeholder="Elegí una o escribí una nueva" autocomplete="off">
+<datalist id="opcionesMaterias"></datalist>
+<small style="display:block;margin-top:-8px;margin-bottom:12px;color:#666">Podés elegir una materia de la lista o escribir otra; quedará guardada para la próxima.</small>
 <label for="fecha">Fecha de entrega</label>
 <input id="fecha" type="date" required>
 <label for="prioridad">Prioridad</label>
@@ -113,6 +115,22 @@ const clave="ordenando-actividades-v1";
 let tareas=[];
 try{tareas=JSON.parse(localStorage.getItem(clave)||"[]");if(!Array.isArray(tareas))tareas=[]}catch(e){tareas=[]}
 const $=id=>document.getElementById(id);
+const claveMaterias="ordenando-materias-v1";
+const materiasIniciales=["Matemática","Lengua","Inglés","Historia","Geografía","Biología","Física","Química","Educación Física","Formación Ética y Ciudadana","Tecnología","Arte","Informática"];
+let materiasPersonalizadas=[];
+try{materiasPersonalizadas=JSON.parse(localStorage.getItem(claveMaterias)||"[]");if(!Array.isArray(materiasPersonalizadas))materiasPersonalizadas=[]}catch(e){materiasPersonalizadas=[]}
+function actualizarOpcionesMaterias(){
+  const materias=[...new Set([...materiasIniciales,...materiasPersonalizadas,...tareas.map(t=>t.materia).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"es"));
+  $("opcionesMaterias").innerHTML=materias.map(m=>`<option value="${escapar(m)}"></option>`).join("");
+}
+function guardarMateriaNueva(nombre){
+  const materia=String(nombre||"").trim();
+  if(materia&&!materiasPersonalizadas.some(m=>m.toLowerCase()===materia.toLowerCase())){
+    materiasPersonalizadas.push(materia);
+    localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));
+  }
+  actualizarOpcionesMaterias();
+}
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
 function fechaTexto(f){if(!f)return "Sin fecha";return new Date(f+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}
 function tarjeta(t){
@@ -147,7 +165,9 @@ actualizar();
 document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>mostrar(b.dataset.tab)));
 $("formulario").addEventListener("submit",e=>{
 e.preventDefault();
-tareas.push({id:Date.now().toString(),titulo:$("titulo").value.trim(),materia:$("materia").value.trim(),fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim(),hecha:false});
+const materiaElegida=$("materia").value.trim();
+guardarMateriaNueva(materiaElegida);
+tareas.push({id:Date.now().toString(),titulo:$("titulo").value.trim(),materia:materiaElegida,fecha:$("fecha").value,prioridad:$("prioridad").value,detalle:$("detalle").value.trim(),hecha:false});
 guardar();e.target.reset();mostrar("tareas");
 });
 function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
@@ -194,6 +214,7 @@ $("mes").value=new Date().toLocaleDateString("sv-SE").slice(0,7);
 
 $("mes").addEventListener("change",consultarDia);
 $("fecha").value=new Date().toLocaleDateString("sv-SE");
+actualizarOpcionesMaterias();
 actualizar();
 </script>
 </body>
