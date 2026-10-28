@@ -173,12 +173,16 @@ function consultarDia(){
 
   for(let dia=1;dia<=cantidad;dia++){
     const fecha = `${anio}-${String(numeroMes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
-    const delDia = tareas.filter(t=>t.fecha===fecha && !t.hecha);
+    const delDia = tareas.filter(t=>String(t.fecha||"").slice(0,10)===fecha && !t.hecha);
     let color = "#e7f7ed";
     if(delDia.some(t=>t.prioridad==="urgente")) color="#ffdada";
     else if(delDia.some(t=>t.prioridad==="importante")) color="#fff0bd";
+    const puntos = delDia.map(t=>{
+      const colorPunto = t.prioridad==="urgente" ? "#e53935" : t.prioridad==="importante" ? "#e7a000" : "#28a36a";
+      return `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${colorPunto};margin:0 1px" title="${t.prioridad||"normal"}"></span>`;
+    }).join("");
 
-    html += `<div style="text-align:center;padding:10px 2px;border-radius:8px;background:${color};border:1px solid #ddd" title="${delDia.length} tarea(s)">${dia}${delDia.length?`<div style="font-size:11px">● ${delDia.length}</div>`:""}</div>`;
+    html += `<div style="text-align:center;padding:10px 2px;border-radius:8px;background:${color};border:1px solid #ddd" title="${delDia.length} tarea(s)">${dia}${delDia.length?`<div style="margin-top:4px;line-height:8px">${puntos}</div><div style="font-size:10px;margin-top:3px">${delDia.length}</div>`:""}</div>`;
   }
 
 html += "</div>";
