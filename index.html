@@ -98,9 +98,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <input id="mes" type="month">
 <div id="calendarioColores"></div>
 
-<div class="legend">
-<span>🟢 Normal</span><span>🟡 Importante</span><span>🔴 Urgente</span>
-</div>
+
 <div id="dia"></div>
 </div>
 <div class="panel">
@@ -183,7 +181,7 @@ function consultarDia(){
     html += `<div style="text-align:center;padding:10px 2px;border-radius:8px;background:${color};border:1px solid #ddd" title="${delDia.length} tarea(s)">${dia}${delDia.length?`<div style="font-size:11px">● ${delDia.length}</div>`:""}</div>`;
   }
 
-  html += "</div><p>🟢 Normal　🟡 Importante　🔴 Urgente</p>";
+html += "</div>";
   calendario.innerHTML = html;
 }
 
