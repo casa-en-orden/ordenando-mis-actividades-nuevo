@@ -52,6 +52,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <button class="active" data-tab="inicio">🏠 Inicio</button>
 <button data-tab="tareas">📝 Mis tareas</button>
 <button data-tab="calendario">📅 Calendario</button>
+<button data-tab="copias">🛟 Copia de seguridad</button>
 </nav>
 <main>
 <section id="inicio">
@@ -74,14 +75,6 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <span>🔴 Urgente</span>
 </div>
 <p>Los colores te ayudan a saber qué necesita tu atención primero.</p>
-</div>
-<div class="panel">
-<h2>🛟 Copia de seguridad</h2>
-<p>Guardá tus tareas y materias en un archivo para poder recuperarlas más adelante o pasarlas a otro dispositivo.</p>
-<button class="primary" type="button" onclick="exportarCopia()">⬇️ Descargar copia de seguridad</button>
-<label for="archivoCopia" style="display:block;margin-top:16px;font-weight:bold">Recuperar una copia guardada</label>
-<input id="archivoCopia" type="file" accept=".json,application/json">
-<small style="display:block;color:#666">Al recuperar una copia, las tareas y materias actuales se reemplazarán por las del archivo elegido.</small>
 </div>
 <div class="panel">
 <h2>📌 Próximas tareas</h2>
@@ -132,6 +125,16 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <div class="panel">
 <h2>Todas las fechas</h2>
 <div id="fechas"></div>
+</div>
+</section>
+<section id="copias" class="hidden">
+<div class="panel">
+<h2>🛟 Copia de seguridad</h2>
+<p>Guardá tus tareas y materias en un archivo para poder recuperarlas más adelante o pasarlas a otro dispositivo.</p>
+<button class="primary" type="button" onclick="exportarCopia()">⬇️ Descargar copia de seguridad</button>
+<label for="archivoCopia" style="display:block;margin-top:16px;font-weight:bold">Recuperar una copia guardada</label>
+<input id="archivoCopia" type="file" accept=".json,application/json">
+<small style="display:block;color:#666">Al recuperar una copia, las tareas y materias actuales se reemplazarán por las del archivo elegido.</small>
 </div>
 </section>
 </main>
