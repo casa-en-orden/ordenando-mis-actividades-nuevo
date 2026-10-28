@@ -409,7 +409,10 @@ function verTareasDelDia(fecha){
   consultarDia();
   const zona=$("dia");
   const delDia=tareas.filter(t=>String(t.fecha||"").slice(0,10)===fecha);
+  const pendientesDia=delDia.filter(t=>!t.hecha).length;
+  const completadasDia=delDia.filter(t=>t.hecha).length;
   zona.innerHTML='<div class="detalle-dia"><h3 style="margin-top:0">📅 Tareas del '+fechaTexto(fecha)+'</h3>'+
+    '<p aria-live="polite" style="font-weight:bold">⏳ Pendientes: '+pendientesDia+' · ✅ Completadas: '+completadasDia+'</p>'+
     (delDia.length?delDia.slice().sort((a,b)=>(a.hecha===b.hecha?0:a.hecha?1:-1)||a.titulo.localeCompare(b.titulo,"es")).map(t=>tarjeta(t)).join(""):'<p>🎉 No hay tareas programadas para este día.</p>')+
     '</div>';
 }
