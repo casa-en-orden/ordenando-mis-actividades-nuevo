@@ -126,7 +126,7 @@ function actualizarOpcionesMaterias(){
   const zona=$("administrarMaterias");
   if(materiasPersonalizadas.length){
     zona.innerHTML='<details><summary style="cursor:pointer;color:#4034aa;font-weight:bold">Administrar materias que agregué</summary><div style="margin-top:8px">'+materiasPersonalizadas.slice().sort((a,b)=>a.localeCompare(b,"es")).map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #eee"><span>${escapar(m)}</span><button type="button" data-borrar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:7px 10px;background:#ffe8e8;color:#a11;cursor:pointer">🗑 Borrar</button></div>`).join("")+'</div></details>';
-    zona.querySelectorAll("[data-borrar-materia]").forEach(boton=>boton.addEventListener("click",()=>borrarMateriaPersonalizada(boton.getAttribute("data-borrar-materia")));
+    zona.querySelectorAll("[data-borrar-materia]").forEach(boton=>boton.addEventListener("click",()=>borrarMateriaPersonalizada(boton.getAttribute("data-borrar-materia"))));
   } else {
     zona.innerHTML='<small style="color:#666">Todavía no agregaste materias personalizadas.</small>';
   }
