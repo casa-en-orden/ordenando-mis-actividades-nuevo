@@ -106,6 +106,54 @@ footer{max-width:850px;margin:0 auto;color:#74798b;line-height:1.6;padding:20px 
 .inspiracion-capa p{font-family:Georgia,serif;font-size:clamp(21px,3.3vw,34px);font-weight:700;line-height:1.25;max-width:780px;text-shadow:0 2px 8px #0008;margin:0 0 10px}
 .inspiracion-capa span{font-size:clamp(12px,1.8vw,15px);font-weight:600;letter-spacing:.3px;text-shadow:0 1px 5px #000b}
 @media(max-width:600px){.inspiracion{height:165px}.inspiracion>img{object-position:center}.inspiracion-capa{padding:15px}.inspiracion-capa p{font-size:22px}.inspiracion-capa span{font-size:12px;max-width:300px}}
+
+/* Rediseño amable y accesible: más aire, colores suaves y acciones claras */
+:root{--tinta:#292643;--suave:#66647d;--morado:#7656d9;--morado-oscuro:#5036a8;--lavanda:#f0eaff;--papel:#fff;--fondo:#faf8ff;--linea:#e9e2fa;--verde:#e9f8ef;--amarillo:#fff5d9;--rosa:#fff0f1;--azul:#edf5ff}
+body{background:radial-gradient(ellipse at top left,#f0eaff 0,transparent 34%),var(--fondo);color:var(--tinta);font-size:16px}
+header{padding:25px 20px 19px;background:linear-gradient(120deg,#fff 0%,#f4efff 58%,#fff5f0 100%);border:0}
+header h1{font-size:clamp(24px,4vw,34px);letter-spacing:-.7px}
+header p{font-size:16px}
+.inspiracion{height:clamp(170px,25vw,265px);border-radius:0 0 22px 22px;box-shadow:0 8px 24px #4f348b16}
+.inspiracion>img{object-position:center 53%}
+.inspiracion-capa{background:linear-gradient(90deg,#21153c70,#24183d25 50%,#21153c65)}
+.inspiracion-capa p{max-width:760px;font-size:clamp(24px,3.5vw,38px)}
+nav{position:relative;z-index:2;gap:8px;padding:14px 16px;background:#fff;border-bottom:1px solid #e9e2fa;box-shadow:0 4px 16px #3c246b0a}
+nav button{border-radius:12px;padding:11px 14px;font-size:14px}
+nav button.active{background:#7656d9;color:white;border-color:#7656d9;box-shadow:0 4px 10px #7656d933}
+main{max-width:1100px;padding:25px 20px 40px}
+.panel{border:1px solid #e8e1f7;border-radius:18px;padding:clamp(18px,3vw,26px);margin-bottom:19px;box-shadow:0 5px 18px #4b32750a}
+h2{font-size:clamp(21px,2.5vw,25px);color:#48347f;margin-bottom:16px}
+h3{color:#463675}
+input,select,textarea{border:1.5px solid #ded8ee;border-radius:11px;padding:13px 14px;background:#fff}
+input:focus,select:focus,textarea:focus{border-color:#8b6ee0;box-shadow:0 0 0 4px #8b6ee01c}
+button.primary{background:linear-gradient(135deg,#8060e4,#6845c5);border:0;border-radius:11px;padding:12px 17px;box-shadow:0 4px 10px #6845c51c}
+button.primary:hover{background:#5036a8;transform:translateY(-1px)}
+.estadisticas{gap:13px}
+.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:132px;border:1px solid #e6defa;box-shadow:none;border-radius:16px;padding:18px;background:#f1ecff;color:#4e3988;gap:8px}
+.estadistica strong,.estadistica span{color:#4e3988;text-shadow:none}
+.estadistica strong{font-size:36px}
+.estadistica .estadistica-icono{font-size:27px}
+.estadistica.hoy{background:#fff5dc;border-color:#f5e5b4}
+.estadistica.hoy strong,.estadistica.hoy span{color:#8a5a00}
+.estadistica.atrasadas{background:#fff0f0;border-color:#f6d9dd}
+.estadistica.atrasadas strong,.estadistica.atrasadas span{color:#a83242}
+.estadistica.urgentes{background:#e8f7ed;border-color:#ccebd7}
+.estadistica.urgentes strong,.estadistica.urgentes span{color:#176b42}
+.task{background:#fff;border:1px solid #e9e5f2;border-left:5px solid #38a66a;border-radius:12px;padding:15px;margin:11px 0}
+.task.importante{background:#fffdf6;border-left-color:#e7a000}
+.task.urgente{background:#fff7f7;border-left-color:#e53935}
+.task button{border-radius:9px;padding:9px 11px}
+.dia-calendario{background:#fff!important;border:1px solid #e8e2f4;color:#3d365d;border-radius:10px;min-height:58px}
+.dia-calendario.seleccionado{background:#7656d9!important;color:#fff;border:2px solid #5036a8}
+.dia-calendario.hoy{box-shadow:inset 0 0 0 2px #a995eb}
+.detalle-dia,.semana-dia{border-radius:14px;border-color:#e5def4;background:#fcfbff}
+.semana-dia.hoy{border:2px solid #9278e5;background:#f4efff}
+.notice{border-width:2px;border-left-width:8px;box-shadow:0 5px 16px #b71c1c12}
+footer{max-width:1100px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #6747c8;outline-offset:3px}
+@media(max-width:700px){main{padding:14px 11px 28px}.panel{padding:17px;border-radius:15px}.estadisticas{gap:10px}.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:116px;padding:14px}.estadistica strong{font-size:32px}}
+@media(max-width:420px){.estadistica span{font-size:13px}.inspiracion{height:155px}.inspiracion-capa p{font-size:21px}}
+
 </style>
 </head>
 <body>
@@ -561,6 +609,48 @@ actualizarBotonRecordatorios();
 actualizar();
 revisarRecordatorios();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRecordatorios();});
+
+/* Frase inspiradora que cambia cada día, sin depender de servicios externos */
+(function(){
+ const frases=[
+  ["Cada pequeño paso te acerca a tu meta.","Organizá tu tiempo. Confiá en vos. Seguí avanzando."],
+  ["No hace falta hacerlo perfecto, solo empezar.","Un poquito hoy también cuenta."],
+  ["Tu esfuerzo de hoy construye tu mañana.","Seguí a tu ritmo: cada avance vale."],
+  ["Podés con esto, un paso a la vez.","Respirá, organizate y empezá por algo pequeño."],
+  ["Aprender lleva tiempo y eso está bien.","Tenete paciencia: estás creciendo."],
+  ["Lo importante es no dejar de intentarlo.","Cada día es una nueva oportunidad."],
+  ["Tus metas merecen tu esfuerzo.","Dale lugar a lo que querés lograr."],
+  ["Un paso pequeño sigue siendo un paso.","Hoy podés avanzar un poquito."],
+  ["Con calma y constancia se llega lejos.","Hacé lo que puedas, con lo que tenés."],
+  ["No te compares: tu camino es tuyo.","Avanzá a tu manera."],
+  ["Todo gran logro empieza con una decisión.","Elegí una tarea y comenzá."],
+  ["Descansar también forma parte del progreso.","Cuidarte te ayuda a seguir."],
+  ["Creé en todo lo que estás aprendiendo.","Cada intento te enseña algo."],
+  ["No necesitás resolver todo hoy.","Una cosa por vez."],
+  ["La constancia transforma pequeños esfuerzos.","Seguí construyendo tu camino."],
+  ["Tu futuro se prepara con lo que hacés hoy.","Regalate unos minutos de concentración."],
+  ["Equivocarse también es aprender.","Probá de nuevo: podés mejorar."],
+  ["Sentite orgulloso de cada avance.","Aunque sea pequeño, cuenta."],
+  ["Organizarte te da espacio para respirar.","Planificá con cariño y sin exigirte de más."],
+  ["La mejor manera de empezar es empezar.","Elegí una tarea sencilla y dale."],
+  ["Tenés permiso para aprender a tu ritmo.","No todo tiene que salir a la primera."],
+  ["Cada página leída es un logro.","Vas sumando más de lo que pensás."],
+  ["La motivación aparece mientras avanzás.","Empezá por cinco minutos."],
+  ["Hoy es una buena oportunidad para intentarlo.","Confiá en el proceso."],
+  ["Los pequeños hábitos crean grandes cambios.","Un poquito de constancia hace la diferencia."],
+  ["Tu dedicación importa.","Date crédito por el esfuerzo que hacés."],
+  ["Podés volver a empezar las veces que haga falta.","Un día difícil no define tu camino."],
+  ["Celebrá lo que ya lograste.","También merecés reconocer tus avances."],
+  ["Paso a paso, las cosas toman forma.","Respirá y seguí adelante."],
+  ["Tu esfuerzo vale, incluso cuando cuesta.","No estás obligado a hacerlo todo de una vez."],
+  ["Mañana vas a agradecer el pequeño paso de hoy.","Empezá por lo posible."]
+ ];
+ const base=new Date();const inicio=new Date(base.getFullYear(),0,0);const dia=Math.floor((base-inicio)/86400000);
+ const frase=frases[dia%frases.length];
+ const p=document.querySelector(".inspiracion-capa p");const s=document.querySelector(".inspiracion-capa span");
+ if(p)p.textContent="“"+frase[0]+"”";if(s)s.textContent=frase[1];
+})();
+
 </script>
 </body>
 </html>
