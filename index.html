@@ -154,6 +154,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:700px){main{padding:14px 11px 28px}.panel{padding:17px;border-radius:15px}.estadisticas{gap:10px}.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:116px;padding:14px}.estadistica strong{font-size:32px}}
 @media(max-width:420px){.estadistica span{font-size:13px}.inspiracion{height:155px}.inspiracion-capa p{font-size:21px}}
 
+
+/* Accesos rápidos pensados para que sea fácil encontrar cada función */
+.accesos-rapidos .ayuda-accesos{color:var(--suave);margin-top:-7px}
+.rejilla-accesos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.acceso{display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:auto auto;column-gap:12px;align-items:center;text-align:left;padding:16px;border:1px solid #e4dcf7;border-radius:15px;background:#fbf9ff;color:var(--tinta);cursor:pointer;min-height:100px}
+.acceso-icono{grid-column:1;grid-row:1/3;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:14px;background:#eee7ff;font-size:25px}
+.acceso-titulo{font-size:16px;font-weight:800;color:#49377e;line-height:1.35}
+.acceso-descripcion{font-size:13px;line-height:1.4;color:#66647d;margin-top:4px}
+.acceso-nuevo{background:#f5f0ff}.acceso-lista{background:#f0f7ff;border-color:#dceafa}.acceso-lista .acceso-icono{background:#dcecff}
+.acceso-semana{background:#effaf3;border-color:#d9f0e1}.acceso-semana .acceso-icono{background:#d8f2e1}
+.acceso-calendario{background:#fff8e9;border-color:#f4e7c9}.acceso-calendario .acceso-icono{background:#ffedc2}
+@media(hover:hover){.acceso:hover{transform:translateY(-2px);box-shadow:0 6px 16px #49377e12;border-color:#b7a5ec}}
+@media(max-width:520px){.rejilla-accesos{grid-template-columns:1fr;gap:10px}.acceso{min-height:84px;padding:13px}.acceso-titulo{font-size:15px}}
+
 </style>
 </head>
 <body>
@@ -183,6 +197,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <button class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea</button>
 <button class="primary" type="button" id="activarRecordatorios" onclick="activarRecordatorios()" style="margin-top:10px;background:#14804a">🔔 Activar recordatorios</button>
 <p style="font-size:13px;color:#666;margin-bottom:0">Los avisos del navegador funcionan si este sitio está abierto y diste permiso para enviar notificaciones.</p>
+</div>
+<div class="panel accesos-rapidos">
+<h2>✨ ¿Qué querés hacer hoy?</h2>
+<p class="ayuda-accesos">Elegí una opción para empezar. No hace falta completar todo.</p>
+<div class="rejilla-accesos">
+<button type="button" class="acceso acceso-nuevo" onclick="mostrar('tareas')"><span class="acceso-icono">➕</span><span class="acceso-titulo">Agregar una tarea</span><span class="acceso-descripcion">Anotá algo que tenés que hacer.</span></button>
+<button type="button" class="acceso acceso-lista" onclick="mostrar('guardadas')"><span class="acceso-icono">📋</span><span class="acceso-titulo">Ver mis tareas</span><span class="acceso-descripcion">Buscá, revisá o completá actividades.</span></button>
+<button type="button" class="acceso acceso-semana" onclick="mostrar('semana')"><span class="acceso-icono">🗓️</span><span class="acceso-titulo">Organizar mi semana</span><span class="acceso-descripcion">Mirá qué tenés para cada día.</span></button>
+<button type="button" class="acceso acceso-calendario" onclick="mostrar('calendario')"><span class="acceso-icono">📅</span><span class="acceso-titulo">Abrir calendario</span><span class="acceso-descripcion">Encontrá las tareas por fecha.</span></button>
+</div>
 </div>
 <div id="avisos"></div>
 <div class="panel">
