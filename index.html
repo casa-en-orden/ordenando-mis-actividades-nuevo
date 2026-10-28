@@ -63,6 +63,8 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <p>Este es tu espacio para organizar el estudio, recordar entregas y avanzar paso a paso.</p>
 <p id="resumen"></p>
 <button class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea</button>
+<button class="primary" type="button" id="activarRecordatorios" onclick="activarRecordatorios()" style="margin-top:10px;background:#14804a">🔔 Activar recordatorios</button>
+<p style="font-size:13px;color:#666;margin-bottom:0">Los avisos del navegador funcionan si este sitio está abierto y diste permiso para enviar notificaciones.</p>
 </div>
 <div class="panel">
 <h2>📊 Tu día de estudio</h2>
@@ -253,6 +255,45 @@ ${Array.isArray(t.adjuntos)&&t.adjuntos.length?`<div style="margin-top:9px;paddi
 </div>`;
 }
 function escapar(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let permisoRecordatorios=typeof Notification!=="undefined"&&Notification.permission==="granted";
+function actualizarBotonRecordatorios(){
+  const boton=$("activarRecordatorios");
+  if(!boton)return;
+  if(typeof Notification==="undefined"){boton.textContent="🔔 Recordatorios no disponibles";boton.disabled=true;boton.title="Este navegador no admite notificaciones.";}
+  else if(Notification.permission==="granted"){boton.textContent="✅ Recordatorios activados";boton.style.background="#14804a";boton.disabled=false;}
+  else if(Notification.permission==="denied"){boton.textContent="🔔 Permitir avisos desde el navegador";boton.disabled=false;boton.title="El permiso está bloqueado en la configuración del navegador.";}
+  else{boton.textContent="🔔 Activar recordatorios";boton.disabled=false;}
+}
+async function activarRecordatorios(){
+  if(typeof Notification==="undefined"){alert("Este navegador no admite notificaciones. Podés seguir viendo los avisos dentro de la aplicación.");return;}
+  try{
+    const permiso=await Notification.requestPermission();
+    actualizarBotonRecordatorios();
+    if(permiso==="granted"){
+      alert("¡Listo! Los recordatorios están activados en este navegador. Para recibirlos, dejá la aplicación abierta.");
+      revisarRecordatorios();
+    }else{
+      alert("No se activaron los avisos. Podés cambiar el permiso en la configuración del navegador.");
+    }
+  }catch(e){alert("No se pudieron activar los recordatorios en este navegador.");}
+}
+function revisarRecordatorios(){
+  if(typeof Notification==="undefined"||Notification.permission!=="granted")return;
+  const hoy=new Date().toLocaleDateString("sv-SE");
+  const limite=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE");
+  const claveAvisos="ordenando-avisos-enviados-v1";
+  let enviados={};try{enviados=JSON.parse(localStorage.getItem(claveAvisos)||"{}")||{};}catch(e){enviados={};}
+  tareas.filter(t=>!t.hecha&&t.fecha&&t.fecha>=hoy&&t.fecha<=limite).forEach(t=>{
+    const clave=String(t.id)+"-"+hoy;
+    if(enviados[clave])return;
+    const cuando=t.fecha===hoy?"vence hoy":("vence el "+fechaTexto(t.fecha));
+    try{
+      new Notification("📚 ORDENANDO MIS ACTIVIDADES",{body:(t.titulo||"Tenés una tarea")+" — "+cuando,tag:clave});
+      enviados[clave]=true;
+    }catch(e){}
+  });
+  try{localStorage.setItem(claveAvisos,JSON.stringify(enviados));}catch(e){}
+}
 function actualizar(){
 const hoy=new Date().toLocaleDateString("sv-SE");
 const pendientes=tareas.filter(t=>!t.hecha);
@@ -267,6 +308,7 @@ $("proximas").innerHTML=pendientes.slice().sort((a,b)=>a.fecha.localeCompare(b.f
 $("lista").innerHTML=tareas.filter(t=>!t.hecha).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"No tenés tareas pendientes.";
 $("fechas").innerHTML=tareas.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"Todavía no hay tareas.";
 consultarDia();
+revisarRecordatorios();
 }
 function mostrar(tab){
 document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
@@ -342,7 +384,10 @@ $("mes").value=new Date().toLocaleDateString("sv-SE").slice(0,7);
 $("mes").addEventListener("change",consultarDia);
 $("fecha").value=new Date().toLocaleDateString("sv-SE");
 actualizarOpcionesMaterias();
+actualizarBotonRecordatorios();
 actualizar();
+revisarRecordatorios();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRecordatorios();});
 </script>
 </body>
 </html>
