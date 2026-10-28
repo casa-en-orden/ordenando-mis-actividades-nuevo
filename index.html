@@ -376,7 +376,7 @@ function consultarDia(){
     if(delDia.some(t=>t.prioridad==="urgente"))fondo="#ffdada";
     else if(delDia.some(t=>t.prioridad==="importante"))fondo="#fff0bd";
     const puntos=delDia.map(t=>{
-      const color=t.prioridad==="urgente"?"#e53935":t.prioridad==="importante"?"#e7a000":"#1769d2";
+      const color=t.prioridad==="urgente"?"#e53935":t.prioridad==="importante"?"#e7a000":"#28a36a";
       return '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+color+';margin:0 2px;box-shadow:0 0 0 1px #ffffff" aria-hidden="true"></span>';
     }).join("");
     const clases="dia-calendario"+(fecha===fechaCalendarioSeleccionada?" seleccionado":"")+(fecha===hoy?" hoy":"");
