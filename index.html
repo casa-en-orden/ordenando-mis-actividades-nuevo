@@ -76,6 +76,14 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <p>Los colores te ayudan a saber qué necesita tu atención primero.</p>
 </div>
 <div class="panel">
+<h2>🛟 Copia de seguridad</h2>
+<p>Guardá tus tareas y materias en un archivo para poder recuperarlas más adelante o pasarlas a otro dispositivo.</p>
+<button class="primary" type="button" onclick="exportarCopia()">⬇️ Descargar copia de seguridad</button>
+<label for="archivoCopia" style="display:block;margin-top:16px;font-weight:bold">Recuperar una copia guardada</label>
+<input id="archivoCopia" type="file" accept=".json,application/json">
+<small style="display:block;color:#666">Al recuperar una copia, las tareas y materias actuales se reemplazarán por las del archivo elegido.</small>
+</div>
+<div class="panel">
 <h2>📌 Próximas tareas</h2>
 <div id="proximas"></div>
 </div>
@@ -176,6 +184,43 @@ $("administrarMaterias").addEventListener("click",function(e){
 });
 let tareaEditando=null;
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
+function exportarCopia(){
+  const copia={formato:"ordenando-mis-actividades",version:1,fechaExportacion:new Date().toISOString(),tareas:tareas,materiasPersonalizadas:materiasPersonalizadas};
+  const archivo=new Blob([JSON.stringify(copia,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(archivo);
+  const enlace=document.createElement("a");
+  enlace.href=url;
+  enlace.download="copia-ordenando-mis-actividades-"+new Date().toLocaleDateString("sv-SE")+".json";
+  document.body.appendChild(enlace);enlace.click();enlace.remove();URL.revokeObjectURL(url);
+}
+$("archivoCopia").addEventListener("change",function(e){
+  const archivo=e.target.files&&e.target.files[0];
+  if(!archivo)return;
+  const lector=new FileReader();
+  lector.onload=function(){
+    try{
+      const copia=JSON.parse(String(lector.result||""));
+      if(!copia||copia.formato!=="ordenando-mis-actividades"||!Array.isArray(copia.tareas)||!Array.isArray(copia.materiasPersonalizadas))throw new Error("formato");
+      const tareasValidas=copia.tareas.every(t=>t&&typeof t==="object"&&typeof t.id==="string"&&typeof t.titulo==="string");
+      const materiasValidas=copia.materiasPersonalizadas.every(m=>typeof m==="string");
+      if(!tareasValidas||!materiasValidas)throw new Error("datos");
+      if(!confirm("La copia contiene "+copia.tareas.length+" tareas. ¿Querés reemplazar las tareas y materias de este dispositivo por las del archivo?")){e.target.value="";return;}
+      localStorage.setItem(clave,JSON.stringify(copia.tareas));
+      localStorage.setItem(claveMaterias,JSON.stringify(copia.materiasPersonalizadas));
+      tareas=copia.tareas;
+      materiasPersonalizadas=copia.materiasPersonalizadas;
+      cancelarEdicionTarea();
+      actualizarOpcionesMaterias();
+      guardar();
+      alert("¡Copia recuperada correctamente!");
+    }catch(err){
+      alert("No se pudo recuperar el archivo. Elegí una copia de seguridad creada desde Ordenando Mis Actividades.");
+    }
+    e.target.value="";
+  };
+  lector.onerror=function(){alert("No se pudo leer el archivo. Probá nuevamente.");e.target.value="";};
+  lector.readAsText(archivo);
+});
 function fechaTexto(f){if(!f)return "Sin fecha";return new Date(f+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}
 function tarjeta(t){
 const vencida=t.fecha<new Date().toLocaleDateString("sv-SE");
