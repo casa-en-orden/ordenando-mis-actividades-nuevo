@@ -291,7 +291,7 @@ finally{botonGuardar.disabled=false;botonGuardar.textContent=textoOriginal;}
 });
 function editarTarea(id){
 const t=tareas.find(t=>t.id===id);if(!t)return;
-tareaEditando=id;$("titulo").value=t.titulo||"";$("materia").value=t.materia||"";$("fecha").value=t.fecha||"";$("prioridad").value=t.prioridad||"normal";$("detalle").value=t.detalle||"";
+tareaEditando=id;mostrarAdjuntosEdicion();$("titulo").value=t.titulo||"";$("materia").value=t.materia||"";$("fecha").value=t.fecha||"";$("prioridad").value=t.prioridad||"normal";$("detalle").value=t.detalle||"";
 $("tituloFormulario").textContent="✏️ Editar tarea";$("guardarTarea").textContent="Guardar cambios";$("cancelarEdicion").classList.remove("hidden");mostrar("tareas");$("titulo").focus();
 }
 function cancelarEdicionTarea(){tareaEditando=null;$("formulario").reset();$("tituloFormulario").textContent="➕ Agregar una tarea";$("guardarTarea").textContent="Guardar tarea";$("cancelarEdicion").classList.add("hidden");mostrarAdjuntosEdicion();}
