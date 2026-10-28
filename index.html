@@ -269,7 +269,7 @@ ${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
 ${Array.isArray(t.adjuntos)&&t.adjuntos.length?`<div style="margin-top:9px;padding:9px;background:#fff;border-radius:8px"><strong>📎 Archivos adjuntos</strong><div>${t.adjuntos.map(a=>`<button type="button" onclick="abrirAdjunto(&quot;${t.id}&quot;,&quot;${a.id}&quot;)">📄 ${escapar(a.nombre)}</button>`).join("")}</div></div>`:""}
 <small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
 <button onclick="completar('${t.id}')">✓ Completar</button>
-<button onclick="(desdeCalendario?editarTareaEnCalendario:editarTarea)('${t.id}')">✏️ Editar</button>
+<button onclick="${desdeCalendario ? 'editarTareaEnCalendario' : 'editarTarea'}(\'${t.id}\')">✏️ Editar</button>
 <button onclick="eliminar('${t.id}')">🗑 Eliminar</button>
 </div>`;
 }
