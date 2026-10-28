@@ -57,7 +57,6 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </nav>
 <main>
 <section id="inicio">
-<div id="avisos"></div>
 <div class="panel">
 <h2>¡Hola! 👋</h2>
 <p>Este es tu espacio para organizar el estudio, recordar entregas y avanzar paso a paso.</p>
@@ -69,10 +68,6 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <div class="panel">
 <h2>📊 Tu día de estudio</h2>
 <div id="estadisticasInicio" class="estadisticas"></div>
-</div>
-<div class="panel">
-<h2>📌 Próximas tareas</h2>
-<div id="proximas"></div>
 </div>
 </section>
 <section id="tareas" class="hidden">
@@ -151,10 +146,6 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <div style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px;font-size:14px"><span>🟢 Normal</span><span>🟡 Importante</span><span>🔴 Urgente</span><span>🔵 Día elegido</span></div>
 <div id="calendarioColores"></div>
 <div id="dia" aria-live="polite"></div>
-</div>
-<div class="panel">
-<h2>Todas las fechas</h2>
-<div id="fechas"></div>
 </div>
 </section>
 <section id="copias" class="hidden">
@@ -322,12 +313,8 @@ const vencenHoy=pendientes.filter(t=>String(t.fecha||"").slice(0,10)===hoy);
 const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)<hoy && String(t.fecha||"").slice(0,10)!=="");
 const urgentes=pendientes.filter(t=>t.prioridad==="urgente");
 $("estadisticasInicio").innerHTML=`<div class="estadistica"><div class="estadistica-icono">📋</div><strong>${pendientes.length}</strong><span>Pendientes</span></div><div class="estadistica hoy"><div class="estadistica-icono">📅</div><strong>${vencenHoy.length}</strong><span>Vencen hoy</span></div><div class="estadistica atrasadas"><div class="estadistica-icono">⏰</div><strong>${atrasadas.length}</strong><span>Atrasadas</span></div><div class="estadistica urgentes"><div class="estadistica-icono">⚡</div><strong>${urgentes.length}</strong><span>Urgentes</span></div>`;
-const proximas=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE"));
-$("avisos").innerHTML=proximas.length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${proximas.map(t=>"📌 "+escapar(t.titulo)+(t.materia?" · 📚 "+escapar(t.materia):" · Actividad general")+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
-$("proximas").innerHTML=pendientes.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,5).map(tarjeta).join("")||"Todavía no tenés tareas. ¡Podés agregar la primera!";
 renderizarLista();
-$("fechas").innerHTML=tareas.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"Todavía no hay tareas.";
 consultarDia();
 revisarRecordatorios();
 }
