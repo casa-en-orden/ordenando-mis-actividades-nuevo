@@ -29,18 +29,16 @@ button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-
 .task button{margin-top:10px;margin-right:6px;padding:8px;border:0;border-radius:7px;cursor:pointer}
 .hidden{display:none}
 .legend span{display:inline-block;margin:4px 8px 4px 0}
-.estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.estadistica{min-height:142px;padding:18px 12px;border:1px solid #dce3f0;border-radius:16px;background:#e8f0ff;box-shadow:0 3px 10px rgba(35,48,90,.08);text-align:left;display:flex;flex-direction:column;justify-content:center;gap:8px}
-.estadistica .estadistica-icono{font-size:25px;line-height:1}
-.estadistica strong{display:block;font-size:32px;line-height:1.1;color:#2856b6}
-.estadistica span{font-size:14px;font-weight:600;color:#2856b6}
-.estadistica.hoy{background:#fff4d8;border-color:#f1d58a}
-.estadistica.hoy strong,.estadistica.hoy span{color:#946200}
-.estadistica.atrasadas{background:#ffe8e8;border-color:#f4bdbd}
-.estadistica.atrasadas strong,.estadistica.atrasadas span{color:#b42323}
-.estadistica.urgentes{background:#e2f7ea;border-color:#b5e5c5}
-.estadistica.urgentes strong,.estadistica.urgentes span{color:#187543}
-@media(max-width:700px){.estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.estadistica{min-height:125px;padding:15px 12px}}
+.estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:5px 2px 10px}
+.estadistica{min-height:158px;padding:20px 16px;border:2px solid rgba(0,0,0,.10);border-radius:18px;background:#315fe8;box-shadow:0 7px 0 rgba(25,38,70,.12),0 10px 22px rgba(35,48,90,.16);text-align:left;display:flex;flex-direction:column;justify-content:center;gap:10px;transition:transform .15s ease,box-shadow .15s ease}
+.estadistica .estadistica-icono{font-size:30px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12))}
+.estadistica strong{display:block;font-size:38px;line-height:1;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.15)}
+.estadistica span{font-size:15px;font-weight:700;color:#fff}
+.estadistica.hoy{background:#c77b00;border-color:#a96300}
+.estadistica.atrasadas{background:#cf303b;border-color:#a91f2a}
+.estadistica.urgentes{background:#14804a;border-color:#0c6337}
+@media(hover:hover){.estadistica:hover{transform:translateY(-3px);box-shadow:0 10px 0 rgba(25,38,70,.10),0 15px 25px rgba(35,48,90,.2)}}
+@media(max-width:700px){.estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.estadistica{min-height:140px;padding:17px 14px}.estadistica strong{font-size:34px}}
 @media(max-width:360px){.estadisticas{grid-template-columns:1fr}}
 footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </style>
