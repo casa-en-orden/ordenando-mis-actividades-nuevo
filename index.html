@@ -33,7 +33,7 @@ button:disabled{cursor:not-allowed;opacity:.7}
 .task.urgente{border-color:#e53935;background:#fff0f0}
 .task small{display:block;margin-top:7px;color:#555}
 .task button{margin-top:10px;margin-right:6px;padding:8px;border:0;border-radius:7px;cursor:pointer}
-.dia-calendario{width:100%;min-height:54px;padding:8px 2px;border:2px solid #ddd;border-radius:9px;background:#f5f5fa;color:#252744;font-size:16px;font-weight:700;cursor:pointer}.dia-calendario:hover,.dia-calendario:focus-visible{border-color:#5546d8;outline:2px solid #5546d8;outline-offset:1px}.dia-calendario.seleccionado{background:#315fe8!important;color:#fff;border:3px solid #1d3ea8}.dia-calendario.hoy{box-shadow:inset 0 0 0 2px #5546d8}.dia-calendario .cantidad{display:block;font-size:11px;margin-top:4px}.detalle-dia{margin-top:18px;padding:16px;background:#f4f5fb;border-radius:12px;border:1px solid #dedff2}.hidden{display:none}
+.dia-calendario{width:100%;min-height:54px;padding:8px 2px;border:2px solid #ddd;border-radius:9px;background:#f5f5fa;color:#252744;font-size:16px;font-weight:700;cursor:pointer}.dia-calendario:hover,.dia-calendario:focus-visible{border-color:#5546d8;outline:2px solid #5546d8;outline-offset:1px}.dia-calendario.seleccionado{background:#315fe8!important;color:#fff;border:3px solid #1d3ea8}.dia-calendario.hoy{box-shadow:inset 0 0 0 2px #5546d8}.dia-calendario .cantidad{display:block;font-size:11px;margin-top:4px}.detalle-dia{margin-top:18px;padding:16px;background:#f4f5fb;border-radius:12px;border:1px solid #dedff2}.semana-dia{padding:13px;margin:12px 0;border:1px solid #dedff2;border-radius:12px;background:#f8f8ff}.semana-dia h3{margin:0 0 8px}.semana-dia.hoy{border:2px solid #5546d8;background:#f0efff}.semana-dia-vacio{font-size:14px;color:#666;margin:8px 0}.hidden{display:none}
 .legend span{display:inline-block;margin:4px 8px 4px 0}
 .estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:5px 2px 10px}
 .estadistica{min-height:158px;padding:20px 16px;border:2px solid rgba(0,0,0,.10);border-radius:18px;background:#315fe8;box-shadow:0 7px 0 rgba(25,38,70,.12),0 10px 22px rgba(35,48,90,.16);text-align:left;display:flex;flex-direction:column;justify-content:center;gap:10px;transition:transform .15s ease,box-shadow .15s ease}
@@ -59,6 +59,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <button class="active" data-tab="inicio">🏠 Inicio</button>
 <button data-tab="tareas">📝 Mis tareas</button>
 <button data-tab="guardadas">📋 Mis tareas guardadas</button>
+<button data-tab="semana">🗓️ Plan semanal</button>
 <button data-tab="calendario">📅 Calendario</button>
 <button data-tab="copias">🛟 Copia de seguridad</button>
 </nav>
@@ -143,6 +144,19 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <button type="button" class="primary" id="limpiarFiltros" style="margin-bottom:12px">Limpiar búsqueda y filtros</button>
 <p id="ayudaLista" style="color:#666;margin:4px 0 12px">Las tareas aparecerán acá cuando busques o elijas un filtro.</p>
 <div id="lista" aria-live="polite" class="hidden"></div>
+</div>
+</section>
+<section id="semana" class="hidden">
+<div class="panel">
+<h2>🗓️ Plan semanal de estudio</h2>
+<p>Organizá tus tareas por día. Las tareas se toman de las que ya guardaste, sin duplicarlas.</p>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+<button type="button" class="primary" onclick="cambiarSemana(-1)">⬅️ Semana anterior</button>
+<button type="button" class="primary" onclick="irASemanaActual()">📍 Esta semana</button>
+<button type="button" class="primary" onclick="cambiarSemana(1)">Semana siguiente ➡️</button>
+</div>
+<p id="rangoSemana" style="font-weight:bold;color:#4034aa"></p>
+<div id="planSemanal"></div>
 </div>
 </section>
 <section id="calendario" class="hidden">
@@ -325,6 +339,7 @@ $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tare
 $("avisos").innerHTML=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).map(t=>"📌 "+escapar(t.titulo)+(t.materia?" · 📚 "+escapar(t.materia):" · Actividad general")+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 renderizarLista();
 consultarDia();
+renderizarPlanSemanal();
 revisarRecordatorios();
 }
 function renderizarLista(mostrarResultados=false){
@@ -402,6 +417,28 @@ function mostrarAdjuntosEdicion(){const zona=$("adjuntosEdicion");if(!zona)retur
 $("adjuntosEdicion").addEventListener("click",async function(e){const b=e.target.closest("[data-quitar-adjunto]");if(!b||!tareaEditando)return;const t=tareas.find(x=>x.id===tareaEditando);if(!t)return;const id=b.getAttribute("data-quitar-adjunto");if(!confirm("¿Querés quitar este archivo de la tarea?"))return;try{await borrarArchivoAdjunto(id);}catch(err){alert("No se pudo quitar el archivo.");return;}t.adjuntos=(t.adjuntos||[]).filter(a=>a.id!==id);mostrarAdjuntosEdicion();});
 function cambiarEstado(id){const t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;guardar();}}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
+
+// Plan semanal: usa las tareas existentes y no crea copias.
+function fechaLocal(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function lunesDeSemana(fecha){const d=new Date(fecha+"T12:00:00");const dia=(d.getDay()+6)%7;d.setDate(d.getDate()-dia);return d;}
+let inicioSemana=fechaLocal(lunesDeSemana(fechaLocal(new Date())));
+function cambiarSemana(cantidad){const d=new Date(inicioSemana+"T12:00:00");d.setDate(d.getDate()+cantidad*7);inicioSemana=fechaLocal(d);renderizarPlanSemanal();}
+function irASemanaActual(){inicioSemana=fechaLocal(lunesDeSemana(fechaLocal(new Date())));renderizarPlanSemanal();}
+function renderizarPlanSemanal(){
+ const zona=$("planSemanal");if(!zona)return;
+ const inicio=new Date(inicioSemana+"T12:00:00");const fin=new Date(inicio);fin.setDate(fin.getDate()+6);
+ $("rangoSemana").textContent="Semana del "+fechaTexto(fechaLocal(inicio))+" al "+fechaTexto(fechaLocal(fin));
+ const hoy=fechaLocal(new Date());let html="";
+ for(let i=0;i<7;i++){
+  const d=new Date(inicio);d.setDate(inicio.getDate()+i);const fecha=fechaLocal(d);
+  const delDia=tareas.filter(t=>String(t.fecha||"").slice(0,10)===fecha).slice().sort((a,b)=>(a.hecha===b.hecha?0:a.hecha?1:-1)||(a.prioridad==="urgente"?-1:b.prioridad==="urgente"?1:0)||(a.titulo||"").localeCompare(b.titulo||"","es"));
+  const pendientes=delDia.filter(t=>!t.hecha).length;const completadas=delDia.length-pendientes;
+  html+='<div class="semana-dia'+(fecha===hoy?' hoy':'')+'"><h3>'+(fecha===hoy?'📍 Hoy · ':'')+d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})+'</h3><small>⏳ '+pendientes+' pendientes · ✅ '+completadas+' completadas</small>';
+  html+=delDia.length?delDia.map(t=>tarjeta(t)).join(""):'<p class="semana-dia-vacio">No hay tareas para este día.</p>';
+  html+='</div>';
+ }
+ zona.innerHTML=html;
+}
 
 let fechaCalendarioSeleccionada=new Date().toLocaleDateString("sv-SE");
 function verTareasDelDia(fecha){
