@@ -74,6 +74,7 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <input id="materia" list="opcionesMaterias" placeholder="Elegí una o escribí una nueva" autocomplete="off">
 <datalist id="opcionesMaterias"></datalist>
 <small style="display:block;margin-top:-8px;margin-bottom:12px;color:#666">Podés elegir una materia de la lista o escribir otra; quedará guardada para la próxima.</small>
+<div id="administrarMaterias" style="margin-bottom:14px"></div>
 <label for="fecha">Fecha de entrega</label>
 <input id="fecha" type="date" required>
 <label for="prioridad">Prioridad</label>
@@ -120,15 +121,27 @@ const materiasIniciales=["Matemática","Lengua","Inglés","Historia","Geografía
 let materiasPersonalizadas=[];
 try{materiasPersonalizadas=JSON.parse(localStorage.getItem(claveMaterias)||"[]");if(!Array.isArray(materiasPersonalizadas))materiasPersonalizadas=[]}catch(e){materiasPersonalizadas=[]}
 function actualizarOpcionesMaterias(){
-  const materias=[...new Set([...materiasIniciales,...materiasPersonalizadas,...tareas.map(t=>t.materia).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"es"));
+  const materias=[...new Set([...materiasIniciales,...materiasPersonalizadas])].sort((a,b)=>a.localeCompare(b,"es"));
   $("opcionesMaterias").innerHTML=materias.map(m=>`<option value="${escapar(m)}"></option>`).join("");
+  const zona=$("administrarMaterias");
+  if(materiasPersonalizadas.length){
+    zona.innerHTML='<details><summary style="cursor:pointer;color:#4034aa;font-weight:bold">Administrar materias que agregué</summary><div style="margin-top:8px">'+materiasPersonalizadas.slice().sort((a,b)=>a.localeCompare(b,"es")).map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #eee"><span>${escapar(m)}</span><button type="button" onclick="borrarMateriaPersonalizada(${JSON.stringify(m).replace(/</g,"\\u003c")})" style="border:0;border-radius:7px;padding:7px 10px;background:#ffe8e8;color:#a11;cursor:pointer">🗑 Borrar</button></div>`).join("")+'</div></details>';
+  } else {
+    zona.innerHTML='<small style="color:#666">Todavía no agregaste materias personalizadas.</small>';
+  }
 }
 function guardarMateriaNueva(nombre){
   const materia=String(nombre||"").trim();
-  if(materia&&!materiasPersonalizadas.some(m=>m.toLowerCase()===materia.toLowerCase())){
+  if(materia&&!materiasPersonalizadas.some(m=>m.toLowerCase()===materia.toLowerCase())&&!materiasIniciales.some(m=>m.toLowerCase()===materia.toLowerCase())){
     materiasPersonalizadas.push(materia);
     localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));
   }
+  actualizarOpcionesMaterias();
+}
+function borrarMateriaPersonalizada(nombre){
+  if(!confirm('¿Querés borrar "'+nombre+'" de la lista de materias? Las tareas ya guardadas no se borrarán.'))return;
+  materiasPersonalizadas=materiasPersonalizadas.filter(m=>m.toLowerCase()!==String(nombre).toLowerCase());
+  localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));
   actualizarOpcionesMaterias();
 }
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
