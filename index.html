@@ -94,7 +94,10 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <div class="panel">
 <h2>📅 Calendario de actividades</h2>
 <label for="mes">Elegí una fecha para consultar tus tareas</label>
-<input id="mes" type="date">
+
+<input id="mes" type="month">
+<div id="calendarioColores"></div>
+
 <div class="legend">
 <span>🟢 Normal</span><span>🟡 Importante</span><span>🔴 Urgente</span>
 </div>
@@ -151,11 +154,42 @@ guardar();e.target.reset();mostrar("tareas");
 });
 function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
+
 function consultarDia(){
-const f=$("mes").value;
-$("dia").innerHTML=f?((tareas.filter(t=>t.fecha===f).map(tarjeta).join(""))||"No hay tareas para esa fecha."):"Elegí una fecha para ver las tareas.";
+  const mes = $("mes").value;
+  const calendario = $("calendarioColores");
+  if (!mes || !calendario) return;
+
+  const partes = mes.split("-");
+  const anio = Number(partes[0]);
+  const numeroMes = Number(partes[1]);
+  const cantidad = new Date(anio, numeroMes, 0).getDate();
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">';
+  ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].forEach(d=>{
+    html += `<div style="text-align:center;font-weight:bold;padding:5px">${d}</div>`;
+  });
+
+  let inicio = (new Date(anio, numeroMes-1, 1).getDay()+6)%7;
+  for(let i=0;i<inicio;i++) html += "<div></div>";
+
+  for(let dia=1;dia<=cantidad;dia++){
+    const fecha = `${anio}-${String(numeroMes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+    const delDia = tareas.filter(t=>t.fecha===fecha && !t.hecha);
+    let color = "#e7f7ed";
+    if(delDia.some(t=>t.prioridad==="urgente")) color="#ffdada";
+    else if(delDia.some(t=>t.prioridad==="importante")) color="#fff0bd";
+
+    html += `<div style="text-align:center;padding:10px 2px;border-radius:8px;background:${color};border:1px solid #ddd" title="${delDia.length} tarea(s)">${dia}${delDia.length?`<div style="font-size:11px">● ${delDia.length}</div>`:""}</div>`;
+  }
+
+  html += "</div><p>🟢 Normal　🟡 Importante　🔴 Urgente</p>";
+  calendario.innerHTML = html;
 }
-$("mes").value=new Date().toLocaleDateString("sv-SE");
+
+
+$("mes").value=new Date().toLocaleDateString("sv-SE").slice(0,7);
+
 $("mes").addEventListener("change",consultarDia);
 $("fecha").value=new Date().toLocaleDateString("sv-SE");
 actualizar();
