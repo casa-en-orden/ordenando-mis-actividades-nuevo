@@ -98,6 +98,14 @@ footer{max-width:850px;margin:0 auto;color:#74798b;line-height:1.6;padding:20px 
 }
 @media(max-width:360px){.dia-calendario{font-size:12px;min-height:42px}.dia-calendario .cantidad{font-size:9px}.task button{padding:7px;font-size:12px}}
 
+
+/* Foto inspiradora del encabezado */
+.inspiracion{position:relative;width:100%;height:clamp(155px,23vw,245px);overflow:hidden;background:#ded9d0}
+.inspiracion>img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 55%}
+.inspiracion-capa{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px;background:linear-gradient(90deg,#1d292d91,#1d292d32 55%,#1d292d4f);color:#fff}
+.inspiracion-capa p{font-family:Georgia,serif;font-size:clamp(21px,3.3vw,34px);font-weight:700;line-height:1.25;max-width:780px;text-shadow:0 2px 8px #0008;margin:0 0 10px}
+.inspiracion-capa span{font-size:clamp(12px,1.8vw,15px);font-weight:600;letter-spacing:.3px;text-shadow:0 1px 5px #000b}
+@media(max-width:600px){.inspiracion{height:165px}.inspiracion>img{object-position:center}.inspiracion-capa{padding:15px}.inspiracion-capa p{font-size:22px}.inspiracion-capa span{font-size:12px;max-width:300px}}
 </style>
 </head>
 <body>
@@ -106,6 +114,10 @@ footer{max-width:850px;margin:0 auto;color:#74798b;line-height:1.6;padding:20px 
 <h1>📚 ORDENANDO MIS ACTIVIDADES</h1>
 <p>Organizá tus tareas a tu manera. ¡Vos podés!</p>
 </header>
+<section class="inspiracion" aria-label="Inspiración para estudiar">
+<img src="https://images.unsplash.com/photo-1654356709115-3f68998bead4?auto=format&fit=crop&fm=jpg&q=80&w=1800" alt="Rincón de estudio luminoso con libros y una planta junto a una ventana" loading="eager">
+<div class="inspiracion-capa"><p>“Cada pequeño paso te acerca a tu meta.”</p><span>Organizá tu tiempo. Confiá en vos. Seguí avanzando.</span></div>
+</section>
 <nav aria-label="Navegación principal">
 <button class="active" data-tab="inicio">🏠 Inicio</button>
 <button data-tab="tareas">📝 Mis tareas</button>
