@@ -21,7 +21,7 @@ main{max-width:850px;margin:auto;padding:16px}
 h2{margin-top:0}
 input,select,textarea{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccc;border-radius:9px;font-size:16px}
 button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-radius:9px;font-weight:bold;cursor:pointer}
-.notice{background:#fff0c9;border-left:6px solid #ef9b00;padding:15px;border-radius:10px;margin-bottom:16px}
+.notice{background:#fff0c9;border:4px solid #e53935;border-left:14px solid #e53935;padding:24px 22px;border-radius:16px;margin:0 0 20px;box-shadow:0 7px 22px #b71c1c35;animation:avisoPulso 1.8s ease-in-out 3}.notice strong{display:block;font-size:clamp(22px,4vw,30px);line-height:1.2;color:#a51d1d;margin-bottom:12px}.notice p{font-size:19px;font-weight:700;line-height:1.55;margin:10px 0 16px;color:#29213a}.notice button{font-size:17px;padding:13px 18px;border:0;border-radius:10px;background:#b71c1c;color:#fff;font-weight:700;cursor:pointer}@keyframes avisoPulso{0%,100%{box-shadow:0 7px 22px #b71c1c35}50%{box-shadow:0 7px 28px #b71c1c75;transform:scale(1.01)}}
 .task{padding:13px;margin:10px 0;border-radius:10px;background:#f5f5fa;border-left:7px solid #28a36a}
 .task.importante{border-color:#e7a000}
 .task.urgente{border-color:#e53935;background:#fff0f0}
@@ -302,7 +302,7 @@ const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)<hoy && Stri
 const urgentes=pendientes.filter(t=>t.prioridad==="urgente");
 $("estadisticasInicio").innerHTML=`<div class="estadistica"><div class="estadistica-icono">📋</div><strong>${pendientes.length}</strong><span>Pendientes</span></div><div class="estadistica hoy"><div class="estadistica-icono">📅</div><strong>${vencenHoy.length}</strong><span>Vencen hoy</span></div><div class="estadistica atrasadas"><div class="estadistica-icono">⏰</div><strong>${atrasadas.length}</strong><span>Atrasadas</span></div><div class="estadistica urgentes"><div class="estadistica-icono">⚡</div><strong>${urgentes.length}</strong><span>Urgentes</span></div>`;
 const proximas=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE"));
-$("avisos").innerHTML=proximas.length?`<div class="notice"><strong>🔔 ¡ATENCIÓN! TENÉS TAREAS POR VENCER</strong><p>${proximas.map(t=>escapar(t.titulo)+" — "+fechaTexto(t.fecha)).join("<br>")}</p></div>`:"";
+$("avisos").innerHTML=proximas.length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${proximas.map(t=>"📌 "+escapar(t.titulo)+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
 $("proximas").innerHTML=pendientes.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,5).map(tarjeta).join("")||"Todavía no tenés tareas. ¡Podés agregar la primera!";
 $("lista").innerHTML=tareas.filter(t=>!t.hecha).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(tarjeta).join("")||"No tenés tareas pendientes.";
