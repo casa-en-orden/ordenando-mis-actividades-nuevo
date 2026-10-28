@@ -27,7 +27,7 @@ button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-
 .task.urgente{border-color:#e53935;background:#fff0f0}
 .task small{display:block;margin-top:7px;color:#555}
 .task button{margin-top:10px;margin-right:6px;padding:8px;border:0;border-radius:7px;cursor:pointer}
-.hidden{display:none}
+.dia-calendario{width:100%;min-height:54px;padding:8px 2px;border:2px solid #ddd;border-radius:9px;background:#f5f5fa;color:#252744;font-size:16px;font-weight:700;cursor:pointer}.dia-calendario:hover,.dia-calendario:focus-visible{border-color:#5546d8;outline:2px solid #5546d8;outline-offset:1px}.dia-calendario.seleccionado{background:#315fe8!important;color:#fff;border:3px solid #1d3ea8}.dia-calendario.hoy{box-shadow:inset 0 0 0 2px #5546d8}.dia-calendario .cantidad{display:block;font-size:11px;margin-top:4px}.detalle-dia{margin-top:18px;padding:16px;background:#f4f5fb;border-radius:12px;border:1px solid #dedff2}.hidden{display:none}
 .legend span{display:inline-block;margin:4px 8px 4px 0}
 .estadisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:5px 2px 10px}
 .estadistica{min-height:158px;padding:20px 16px;border:2px solid rgba(0,0,0,.10);border-radius:18px;background:#315fe8;box-shadow:0 7px 0 rgba(25,38,70,.12),0 10px 22px rgba(35,48,90,.16);text-align:left;display:flex;flex-direction:column;justify-content:center;gap:10px;transition:transform .15s ease,box-shadow .15s ease}
@@ -124,13 +124,12 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 <section id="calendario" class="hidden">
 <div class="panel">
 <h2>📅 Calendario de actividades</h2>
-<label for="mes">Elegí una fecha para consultar tus tareas</label>
-
+<label for="mes">Elegí el mes y después tocá un día para ver sus tareas</label>
 <input id="mes" type="month">
+<button type="button" class="primary" onclick="irAHoy()" style="margin:0 0 14px">📍 Ir a hoy</button>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px;font-size:14px"><span>🟢 Normal</span><span>🟡 Importante</span><span>🔴 Urgente</span><span>🔵 Día elegido</span></div>
 <div id="calendarioColores"></div>
-
-
-<div id="dia"></div>
+<div id="dia" aria-live="polite"></div>
 </div>
 <div class="panel">
 <h2>Todas las fechas</h2>
@@ -342,46 +341,55 @@ $("adjuntosEdicion").addEventListener("click",async function(e){const b=e.target
 function completar(id){const t=tareas.find(t=>t.id===id);if(t)t.hecha=true;guardar()}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
 
+let fechaCalendarioSeleccionada=new Date().toLocaleDateString("sv-SE");
+function verTareasDelDia(fecha){
+  fechaCalendarioSeleccionada=fecha;
+  consultarDia();
+  const zona=$("dia");
+  const delDia=tareas.filter(t=>String(t.fecha||"").slice(0,10)===fecha);
+  zona.innerHTML='<div class="detalle-dia"><h3 style="margin-top:0">📅 Tareas del '+fechaTexto(fecha)+'</h3>'+
+    (delDia.length?delDia.slice().sort((a,b)=>(a.hecha===b.hecha?0:a.hecha?1:-1)||a.titulo.localeCompare(b.titulo,"es")).map(t=>tarjeta(t)).join(""):'<p>🎉 No hay tareas programadas para este día.</p>')+
+    '</div>';
+}
+function irAHoy(){
+  const hoy=new Date().toLocaleDateString("sv-SE");
+  $("mes").value=hoy.slice(0,7);
+  verTareasDelDia(hoy);
+}
 function consultarDia(){
-  const mes = $("mes").value;
-  const calendario = $("calendarioColores");
-  if (!mes || !calendario) return;
-
-  const partes = mes.split("-");
-  const anio = Number(partes[0]);
-  const numeroMes = Number(partes[1]);
-  const cantidad = new Date(anio, numeroMes, 0).getDate();
-
-  let html = '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">';
-  ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].forEach(d=>{
-    html += `<div style="text-align:center;font-weight:bold;padding:5px">${d}</div>`;
-  });
-
-  let inicio = (new Date(anio, numeroMes-1, 1).getDay()+6)%7;
-  for(let i=0;i<inicio;i++) html += "<div></div>";
-
+  const mes=$("mes").value;
+  const calendario=$("calendarioColores");
+  if(!mes||!calendario)return;
+  const partes=mes.split("-");
+  const anio=Number(partes[0]);
+  const numeroMes=Number(partes[1]);
+  const cantidad=new Date(anio,numeroMes,0).getDate();
+  let html='<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">';
+  ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].forEach(d=>{html+='<div style="text-align:center;font-weight:bold;padding:5px;font-size:13px">'+d+'</div>';});
+  const inicio=(new Date(anio,numeroMes-1,1).getDay()+6)%7;
+  for(let i=0;i<inicio;i++)html+='<div></div>';
+  const hoy=new Date().toLocaleDateString("sv-SE");
   for(let dia=1;dia<=cantidad;dia++){
-    const fecha = `${anio}-${String(numeroMes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
-    const delDia = tareas.filter(t=>String(t.fecha||"").slice(0,10)===fecha && !t.hecha);
-    let color = "#e7f7ed";
-    if(delDia.some(t=>t.prioridad==="urgente")) color="#ffdada";
-    else if(delDia.some(t=>t.prioridad==="importante")) color="#fff0bd";
-    const puntos = delDia.map(t=>{
-      const colorPunto = t.prioridad==="urgente" ? "#e53935" : t.prioridad==="importante" ? "#e7a000" : "#28a36a";
-      return `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${colorPunto};margin:0 1px" title="${t.prioridad||"normal"}"></span>`;
+    const fecha=anio+"-"+String(numeroMes).padStart(2,"0")+"-"+String(dia).padStart(2,"0");
+    const delDia=tareas.filter(t=>String(t.fecha||"").slice(0,10)===fecha&&!t.hecha);
+    let fondo="#e7f7ed";
+    if(delDia.some(t=>t.prioridad==="urgente"))fondo="#ffdada";
+    else if(delDia.some(t=>t.prioridad==="importante"))fondo="#fff0bd";
+    const puntos=delDia.map(t=>{
+      const color=t.prioridad==="urgente"?"#e53935":t.prioridad==="importante"?"#e7a000":"#28a36a";
+      return '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+color+';margin:0 1px" aria-hidden="true"></span>';
     }).join("");
-
-    html += `<div style="text-align:center;padding:10px 2px;border-radius:8px;background:${color};border:1px solid #ddd" title="${delDia.length} tarea(s)">${dia}${delDia.length?`<div style="margin-top:4px;line-height:8px">${puntos}</div><div style="font-size:10px;margin-top:3px">${delDia.length}</div>`:""}</div>`;
+    const clases="dia-calendario"+(fecha===fechaCalendarioSeleccionada?" seleccionado":"")+(fecha===hoy?" hoy":"");
+    html+='<button type="button" class="'+clases+'" style="background:'+(fecha===fechaCalendarioSeleccionada?"#315fe8":fondo)+'" onclick="verTareasDelDia(\''+fecha+'\')" aria-label="'+dia+' de '+fechaTexto(fecha)+(delDia.length?", "+delDia.length+" tareas":"")+'" aria-pressed="'+(fecha===fechaCalendarioSeleccionada)+'">'+dia+(delDia.length?'<span class="cantidad">'+puntos+delDia.length+' tarea(s)</span>':'')+'</button>';
   }
-
-html += "</div>";
-  calendario.innerHTML = html;
+  html+='</div>';
+  calendario.innerHTML=html;
 }
 
 
 $("mes").value=new Date().toLocaleDateString("sv-SE").slice(0,7);
-
-$("mes").addEventListener("change",consultarDia);
+fechaCalendarioSeleccionada=new Date().toLocaleDateString("sv-SE");
+$("mes").addEventListener("change",()=>{const mes=$("mes").value;if(!mes)return;verTareasDelDia(mes+"-01");});
 $("fecha").value=new Date().toLocaleDateString("sv-SE");
 actualizarOpcionesMaterias();
 actualizarBotonRecordatorios();
