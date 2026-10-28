@@ -9,6 +9,9 @@
 <title>Ordenando mis actividades</title>
 <style>
 *{box-sizing:border-box}
+html{scroll-behavior:auto}
+.skip-link{position:absolute;top:-100px;left:12px;z-index:1000;padding:12px 16px;background:#fff;color:#252744;border:3px solid #5546d8;border-radius:8px;font-weight:bold}
+.skip-link:focus{top:12px}
 body{margin:0;font-family:Arial,sans-serif;background:#f4f5fb;color:#252744}
 header{background:#5546d8;color:white;padding:22px 18px}
 header h1{margin:0;font-size:24px}
@@ -21,6 +24,9 @@ main{max-width:850px;margin:auto;padding:16px}
 h2{margin-top:0}
 input,select,textarea{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ccc;border-radius:9px;font-size:16px}
 button.primary{background:#5546d8;color:white;border:0;padding:12px 16px;border-radius:9px;font-weight:bold;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #174ea6;outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.7}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 .notice{background:#fff0c9;border:4px solid #e53935;border-left:14px solid #e53935;padding:24px 22px;border-radius:16px;margin:0 0 20px;box-shadow:0 7px 22px #b71c1c35;animation:avisoPulso 1.8s ease-in-out 3}.notice strong{display:block;font-size:clamp(22px,4vw,30px);line-height:1.2;color:#a51d1d;margin-bottom:12px}.notice p{font-size:19px;font-weight:700;line-height:1.55;margin:10px 0 16px;color:#29213a}.notice button{font-size:17px;padding:13px 18px;border:0;border-radius:10px;background:#b71c1c;color:#fff;font-weight:700;cursor:pointer}@keyframes avisoPulso{0%,100%{box-shadow:0 7px 22px #b71c1c35}50%{box-shadow:0 7px 28px #b71c1c75;transform:scale(1.01)}}
 .task{padding:13px;margin:10px 0;border-radius:10px;background:#f5f5fa;border-left:7px solid #28a36a}
 .task.importante{border-color:#e7a000}
@@ -44,18 +50,19 @@ footer{text-align:center;color:#666;padding:20px;font-size:13px}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
 <header>
 <h1>📚 ORDENANDO MIS ACTIVIDADES</h1>
 <p>Organizá tus tareas a tu manera. ¡Vos podés!</p>
 </header>
-<nav>
+<nav aria-label="Navegación principal">
 <button class="active" data-tab="inicio">🏠 Inicio</button>
 <button data-tab="tareas">📝 Mis tareas</button>
 <button data-tab="guardadas">📋 Mis tareas guardadas</button>
 <button data-tab="calendario">📅 Calendario</button>
 <button data-tab="copias">🛟 Copia de seguridad</button>
 </nav>
-<main>
+<main id="contenido" tabindex="-1">
 <section id="inicio">
 <div class="panel">
 <h2>¡Hola! 👋</h2>
