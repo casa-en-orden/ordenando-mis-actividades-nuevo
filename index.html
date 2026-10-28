@@ -168,6 +168,59 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(hover:hover){.acceso:hover{transform:translateY(-2px);box-shadow:0 6px 16px #49377e12;border-color:#b7a5ec}}
 @media(max-width:520px){.rejilla-accesos{grid-template-columns:1fr;gap:10px}.acceso{min-height:84px;padding:13px}.acceso-titulo{font-size:15px}}
 
+
+/* Inspirado en la referencia: agenda pastel, amable y visual */
+:root{--tinta:#26336f;--suave:#59658a;--morado:#7652d4;--morado-oscuro:#4933a3;--fondo:#f8faff;--linea:#dce7ff}
+body{font-family:"Trebuchet MS",Arial,sans-serif;background:linear-gradient(180deg,#fff7fb 0,#f7faff 320px,#fff 100%);color:var(--tinta)}
+header{position:relative;overflow:hidden;padding:28px 22px 23px;background:linear-gradient(110deg,#f6eaff 0%,#fff8fb 37%,#fff0d9 100%);border-bottom:1px solid #e7ddff}
+header h1{max-width:1200px;color:#4432a0;font-size:clamp(27px,4vw,40px);letter-spacing:.1px}
+header p{max-width:1200px;color:#51439d;font-size:17px;font-weight:600}
+.inspiracion{height:clamp(150px,18vw,210px);border-radius:0 0 24px 24px;box-shadow:0 5px 18px #6b58b51a}
+.inspiracion-capa{background:linear-gradient(90deg,#2c246d48,#fff0f01a 50%,#2c246d32);color:#fff}
+.inspiracion-capa p{font-family:"Trebuchet MS",Arial,sans-serif;font-weight:800;font-size:clamp(25px,3.6vw,39px);text-shadow:0 2px 8px #23144b70}
+nav{position:sticky;top:0;z-index:10;display:flex;justify-content:center;gap:5px;padding:11px 12px;background:#ffffffed;border-bottom:1px solid #e4e7fb;box-shadow:0 4px 15px #30356b0c;backdrop-filter:blur(10px)}
+nav button{background:transparent;color:#293a86;border:1px solid transparent;border-radius:13px;padding:11px 13px;font-size:14px}
+nav button.active{background:#eee8ff;color:#4d35ad;border-color:#dcd0ff;box-shadow:inset 0 -3px #8865ed}
+main{max-width:1320px;padding:22px clamp(12px,2.8vw,34px) 36px}
+.panel{border:1.5px solid #dfebff;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#fdfcff 100%);box-shadow:0 3px 12px #5368ad0b;padding:clamp(17px,2.5vw,25px);margin-bottom:17px}
+h2{color:#3f319c;font-size:clamp(22px,2.4vw,27px);letter-spacing:0}
+h3{color:#31438c}
+.accesos-rapidos{background:linear-gradient(140deg,#fff,#fbfaff)}
+.rejilla-accesos{gap:14px}
+.acceso{min-height:130px;grid-template-columns:56px minmax(0,1fr);padding:17px;border-radius:17px;border-width:1.5px;box-shadow:0 3px 8px #42328b08}
+.acceso-icono{width:52px;height:52px;border-radius:17px;font-size:28px;box-shadow:0 3px 0 #4432a012}
+.acceso-titulo{font-size:17px;color:#3e3297}
+.acceso-descripcion{font-size:14px;line-height:1.5}
+.acceso-nuevo{background:linear-gradient(135deg,#f8f0ff,#fff);border-color:#d9c8ff}
+.acceso-lista{background:linear-gradient(135deg,#edf7ff,#fff);border-color:#bfe3ff}
+.acceso-semana{background:linear-gradient(135deg,#eafff5,#fff);border-color:#b6f0d7}
+.acceso-calendario{background:linear-gradient(135deg,#fff5e8,#fff);border-color:#ffdbb5}
+.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{border:1.5px solid #ded5ff;min-height:128px;border-radius:17px;box-shadow:none;background:#f0eaff;color:#47359c;padding:17px}
+.estadistica strong,.estadistica span{color:#47359c;text-shadow:none}
+.estadistica.hoy{background:#fff4d9;border-color:#ffe3a2}
+.estadistica.hoy strong,.estadistica.hoy span{color:#8a5b00}
+.estadistica.atrasadas{background:#fff0f4;border-color:#ffc9d8}
+.estadistica.atrasadas strong,.estadistica.atrasadas span{color:#a82d5b}
+.estadistica.urgentes{background:#e9fbf1;border-color:#b9edcf}
+.estadistica.urgentes strong,.estadistica.urgentes span{color:#187447}
+.semana-dia{padding:17px;border-radius:16px;border:1.5px solid #dce7ff;background:linear-gradient(120deg,#f8f3ff,#fff)}
+.semana-dia:nth-child(7n+2){background:linear-gradient(120deg,#ecfff6,#fff);border-color:#c9f2df}
+.semana-dia:nth-child(7n+3){background:linear-gradient(120deg,#edf7ff,#fff);border-color:#c9e9ff}
+.semana-dia:nth-child(7n+4){background:linear-gradient(120deg,#fff0f7,#fff);border-color:#ffd5e9}
+.semana-dia:nth-child(7n+5){background:linear-gradient(120deg,#f2efff,#fff);border-color:#ddd4ff}
+.semana-dia:nth-child(7n+6){background:linear-gradient(120deg,#edfbff,#fff);border-color:#c8f1f6}
+.semana-dia:nth-child(7n){background:linear-gradient(120deg,#fff6e9,#fff);border-color:#ffe4bf}
+.semana-dia.hoy{border:2px solid #9d83f1;background:linear-gradient(120deg,#f7edff,#fff)}
+.task{border-radius:12px;background:#fff;border-color:#e0e8f6;border-left-width:5px;padding:13px 15px}
+.task.importante{background:#fffdf6}.task.urgente{background:#fff5f7}
+input,select,textarea{border:1.5px solid #d9e3f7;border-radius:12px;padding:12px 14px}
+button.primary{background:linear-gradient(135deg,#8060e4,#6745c6);border-radius:12px}
+.dia-calendario{border:1.5px solid #dce6fb;background:#fff;color:#33417c;border-radius:10px}
+.dia-calendario.seleccionado{background:#8864e9!important;border-color:#6746c8;color:#fff}
+footer{max-width:1200px;background:#f1edff;border:1px solid #e2d8ff;border-radius:16px;margin:0 auto 18px;color:#4c3d9d}
+@media(hover:hover){.acceso:hover{transform:translateY(-3px);box-shadow:0 8px 18px #47359c16}.panel{transition:box-shadow .15s ease}}
+@media(max-width:600px){header h1{font-size:26px}header p{font-size:15px}.inspiracion{height:155px}nav{position:relative;justify-content:flex-start}.acceso{min-height:94px}.panel{border-radius:15px}.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:110px}}
+
 </style>
 </head>
 <body>
