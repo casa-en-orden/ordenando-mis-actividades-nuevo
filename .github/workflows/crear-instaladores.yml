@@ -25,8 +25,10 @@ jobs:
           java-version: 21
       - name: Instalar dependencias
         run: npm install
-      - name: Preparar proyecto Android
+      - name: Preparar archivos web y proyecto Android
         run: |
+          mkdir www
+          cp index.html www/index.html
           npx cap add android
           npx cap sync android
       - name: Generar APK de prueba instalable
