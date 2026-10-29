@@ -851,11 +851,13 @@ function editarMateria(nombre){
   actualizar();
   renderizarLista(true);
 }
-$("administrarMaterias").addEventListener("click",function(e){
-  const editar=e.target.closest("[data-editar-materia]");
-  if(editar){e.preventDefault();editarMateria(editar.getAttribute("data-editar-materia"));return;}
-  const borrar=e.target.closest("[data-borrar-materia]");
-  if(borrar){e.preventDefault();borrarMateria(borrar.getAttribute("data-borrar-materia"));}
+[$("administrarMaterias"),$("administrarMateriasPagina")].filter(Boolean).forEach(zona=>{
+  zona.addEventListener("click",function(e){
+    const editar=e.target.closest("[data-editar-materia]");
+    if(editar){e.preventDefault();editarMateria(editar.getAttribute("data-editar-materia"));return;}
+    const borrar=e.target.closest("[data-borrar-materia]");
+    if(borrar){e.preventDefault();borrarMateria(borrar.getAttribute("data-borrar-materia"));}
+  });
 });
 let tareaEditando=null;
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
