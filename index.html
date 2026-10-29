@@ -392,6 +392,17 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .panel-tareas-hoy .hoy-atrasadas{padding:12px;border-radius:12px;background:#fff0f1;border:1px solid #f6d5dc;margin-bottom:12px}
 @media(max-width:600px){.panel-tareas-hoy .bloque-hoy-tareas h3{font-size:16px}}
 
+/* Progreso diario y semanal */
+.panel-progreso{background:linear-gradient(140deg,#f2fff8,#fff 70%);border-color:#ccebd9}
+.progreso-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.progreso-metrica{padding:16px;border:1px solid #d9e9e2;border-radius:14px;background:#fff}
+.progreso-metrica strong{display:block;font-size:30px;line-height:1.2;color:#23764c;margin:5px 0}
+.progreso-metrica span{font-size:14px;color:#52665a;font-weight:700}
+.progreso-barra{height:14px;overflow:hidden;background:#e8e7f2;border-radius:999px;margin:9px 0 6px}
+.progreso-barra>div{height:100%;width:0;background:linear-gradient(90deg,#65c78c,#238653);border-radius:999px;transition:width .25s ease}
+.progreso-ayuda{font-size:13px;color:#687187;margin:6px 0}
+@media(max-width:460px){.progreso-grid{gap:8px}.progreso-metrica{padding:12px}.progreso-metrica strong{font-size:25px}}
+
 </style>
 </head>
 <body>
@@ -429,6 +440,15 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <div id="estadisticasInicio" class="estadisticas"></div>
 <p class="inicio-ayuda-estadisticas">Revisá qué está pendiente, qué vence hoy y qué necesita atención.</p>
 </div>
+</div>
+<div class="panel panel-progreso" id="panelProgreso">
+<h2>🌱 Mi progreso</h2>
+<p>Un vistazo a lo que vas logrando hoy y durante esta semana.</p>
+<div class="progreso-grid">
+<div class="progreso-metrica"><span>✅ Completadas hoy</span><strong id="completadasHoy">0</strong><span id="detalleCompletadasHoy">Tareas marcadas como completadas hoy</span></div>
+<div class="progreso-metrica"><span>🗓️ Avance de la semana</span><strong id="porcentajeSemana">0%</strong><div class="progreso-barra" role="progressbar" aria-label="Avance de tareas de esta semana" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barraProgresoSemana"><div id="rellenoProgresoSemana"></div></div><span id="detalleProgresoSemana">0 de 0 tareas completadas</span></div>
+</div>
+<p class="progreso-ayuda">El avance semanal se calcula con las tareas cuya fecha corresponde a esta semana. Las tareas completadas antes de esta mejora no tienen fecha de finalización registrada y no cuentan en el indicador diario.</p>
 </div>
 <div class="panel panel-tareas-hoy" id="panelTareasHoy">
 <h2>🎯 Tu día de hoy</h2>
@@ -746,10 +766,28 @@ $("estadisticasInicio").innerHTML=`<div class="estadistica"><div class="estadist
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
 $("avisos").innerHTML=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).map(t=>"📌 "+escapar(t.titulo)+(t.materia?" · 📚 "+escapar(t.materia):" · Actividad general")+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 renderizarLista();
+renderizarProgreso();
 renderizarTareasHoy();
 consultarDia();
 renderizarPlanSemanal();
 revisarRecordatorios();
+}
+function renderizarProgreso(){
+  const hoy=new Date().toLocaleDateString("sv-SE");
+  const inicio=lunesDeSemana(hoy);
+  const fin=new Date(inicio);fin.setDate(fin.getDate()+6);
+  const fechaInicio=fechaLocal(inicio);
+  const fechaFin=fechaLocal(fin);
+  const completadasHoy=tareas.filter(t=>t.hecha&&String(t.completadaEl||"").slice(0,10)===hoy).length;
+  const tareasSemana=tareas.filter(t=>{const f=String(t.fecha||"").slice(0,10);return f&&f>=fechaInicio&&f<=fechaFin;});
+  const completadasSemana=tareasSemana.filter(t=>t.hecha).length;
+  const porcentaje=tareasSemana.length?Math.round(completadasSemana/tareasSemana.length*100):0;
+  const elHoy=$("completadasHoy");if(elHoy)elHoy.textContent=String(completadasHoy);
+  const detalleHoy=$("detalleCompletadasHoy");if(detalleHoy)detalleHoy.textContent=completadasHoy===1?"Tarea completada hoy":"Tareas completadas hoy";
+  const elPorcentaje=$("porcentajeSemana");if(elPorcentaje)elPorcentaje.textContent=porcentaje+"%";
+  const detalle=$("detalleProgresoSemana");if(detalle)detalle.textContent=completadasSemana+" de "+tareasSemana.length+" tareas completadas";
+  const barra=$("barraProgresoSemana");if(barra)barra.setAttribute("aria-valuenow",String(porcentaje));
+  const relleno=$("rellenoProgresoSemana");if(relleno)relleno.style.width=porcentaje+"%";
 }
 function renderizarTareasHoy(){
   const zona=$("contenidoTareasHoy");
@@ -844,7 +882,7 @@ $("tituloFormulario").textContent="✏️ Editar tarea";$("guardarTarea").textCo
 function cancelarEdicionTarea(){tareaEditando=null;$("formulario").reset();$("tituloFormulario").textContent="➕ Agregar una tarea";$("guardarTarea").textContent="Guardar tarea";$("cancelarEdicion").classList.add("hidden");mostrarAdjuntosEdicion();}
 function mostrarAdjuntosEdicion(){const zona=$("adjuntosEdicion");if(!zona)return;const t=tareaEditando?tareas.find(x=>x.id===tareaEditando):null;const lista=t&&Array.isArray(t.adjuntos)?t.adjuntos:[];zona.innerHTML=lista.length?"<div style=\"padding:10px;margin-bottom:12px;background:#f5f5fa;border-radius:9px\"><strong>📎 Archivos ya adjuntos</strong>"+lista.map(a=>"<div style=\"padding:6px 0\">📄 "+escapar(a.nombre)+" <button type=\"button\" data-quitar-adjunto=\""+escapar(a.id)+"\">Quitar</button></div>").join("")+"</div>":"";}
 $("adjuntosEdicion").addEventListener("click",async function(e){const b=e.target.closest("[data-quitar-adjunto]");if(!b||!tareaEditando)return;const t=tareas.find(x=>x.id===tareaEditando);if(!t)return;const id=b.getAttribute("data-quitar-adjunto");if(!confirm("¿Querés quitar este archivo de la tarea?"))return;try{await borrarArchivoAdjunto(id);}catch(err){alert("No se pudo quitar el archivo.");return;}t.adjuntos=(t.adjuntos||[]).filter(a=>a.id!==id);mostrarAdjuntosEdicion();});
-function cambiarEstado(id){const t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;guardar();}}
+function cambiarEstado(id){const t=tareas.find(t=>t.id===id);if(t){t.hecha=!t.hecha;if(t.hecha)t.completadaEl=new Date().toLocaleDateString("sv-SE");else delete t.completadaEl;guardar();}}
 function eliminar(id){if(confirm("¿Querés eliminar esta tarea?")){tareas=tareas.filter(t=>t.id!==id);guardar()}}
 
 // Plan semanal: usa las tareas existentes y no crea copias.
