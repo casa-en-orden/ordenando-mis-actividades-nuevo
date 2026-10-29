@@ -1229,7 +1229,7 @@ function actualizarMateriasFiltro(){
   const selector=$("filtroMateria");
   if(!selector)return;
   const elegida=selector.value;
-  const materias=[...new Set(tareas.map(t=>(t.materia||"").trim()).filter(Boolean).filter(m=>materiasDisponibles().some(d=>d.toLocaleLowerCase("es")===m.toLocaleLowerCase("es"))))].sort((a,b)=>a.localeCompare(b,"es"));
+  const materias=materiasDisponibles();
   selector.innerHTML='<option value="">Todas las materias</option>'+materias.map(m=>'<option value="'+escapar(m)+'">'+escapar(m)+'</option>').join("");
   if(materias.includes(elegida))selector.value=elegida;
 }
