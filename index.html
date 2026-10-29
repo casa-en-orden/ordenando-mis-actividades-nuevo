@@ -611,7 +611,7 @@ function editarMateria(nombre){
   try{localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));localStorage.setItem(claveMateriasOcultas,JSON.stringify(materiasOcultas));localStorage.setItem(clave,JSON.stringify(tareas));}
   catch(e){alert("No se pudo guardar el cambio en este navegador. Probá recargar la página.");return;}
   actualizarOpcionesMaterias();
-  actualizarMateriasFiltro();
+  actualizar();
   renderizarLista(true);
 }
 $("administrarMaterias").addEventListener("click",function(e){
