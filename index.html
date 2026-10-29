@@ -382,6 +382,16 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 #copias .copias-recuperar .copias-contenido h3{color:#315d9c}
 @media(max-width:520px){#copias .copias-paso{padding:13px;gap:10px}#copias .copias-icono{flex-basis:34px;width:34px;height:34px;font-size:19px}#copias .copias-contenido .primary{width:100%}}
 
+
+/* Panel diario: muestra tareas de hoy y pendientes atrasadas sin duplicar datos */
+.panel-tareas-hoy{background:linear-gradient(140deg,#fffdf7,#fff 68%);border-color:#f2e2b9}
+.fecha-panel-hoy{margin-top:-8px;color:#665b7d;font-weight:700;text-transform:capitalize}
+.panel-tareas-hoy .bloque-hoy-tareas{margin:14px 0}
+.panel-tareas-hoy .bloque-hoy-tareas h3{font-size:17px;margin:0 0 8px}
+.panel-tareas-hoy .hoy-vacio{padding:14px;border-radius:12px;background:#effaf3;color:#226844}
+.panel-tareas-hoy .hoy-atrasadas{padding:12px;border-radius:12px;background:#fff0f1;border:1px solid #f6d5dc;margin-bottom:12px}
+@media(max-width:600px){.panel-tareas-hoy .bloque-hoy-tareas h3{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -419,6 +429,12 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <div id="estadisticasInicio" class="estadisticas"></div>
 <p class="inicio-ayuda-estadisticas">Revisá qué está pendiente, qué vence hoy y qué necesita atención.</p>
 </div>
+</div>
+<div class="panel panel-tareas-hoy" id="panelTareasHoy">
+<h2>🎯 Tu día de hoy</h2>
+<p id="fechaPanelHoy" class="fecha-panel-hoy"></p>
+<div id="contenidoTareasHoy" aria-live="polite"></div>
+<button type="button" class="primary" onclick="mostrar('guardadas')">📋 Ver todas mis tareas</button>
 </div>
 <div class="panel accesos-rapidos">
 <h2>✨ ¿Qué querés hacer hoy?</h2>
@@ -730,9 +746,30 @@ $("estadisticasInicio").innerHTML=`<div class="estadistica"><div class="estadist
 $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tareas.filter(t=>t.hecha).length} completadas.`;
 $("avisos").innerHTML=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).map(t=>"📌 "+escapar(t.titulo)+(t.materia?" · 📚 "+escapar(t.materia):" · Actividad general")+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 renderizarLista();
+renderizarTareasHoy();
 consultarDia();
 renderizarPlanSemanal();
 revisarRecordatorios();
+}
+function renderizarTareasHoy(){
+  const zona=$("contenidoTareasHoy");
+  const fechaZona=$("fechaPanelHoy");
+  if(!zona)return;
+  const hoy=new Date().toLocaleDateString("sv-SE");
+  if(fechaZona)fechaZona.textContent=new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const pendientes=tareas.filter(t=>!t.hecha);
+  const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)!==""&&String(t.fecha||"").slice(0,10)<hoy)
+    .slice().sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||""));
+  const deHoy=pendientes.filter(t=>String(t.fecha||"").slice(0,10)===hoy)
+    .slice().sort((a,b)=>(a.prioridad==="urgente"?0:a.prioridad==="importante"?1:2)-(b.prioridad==="urgente"?0:b.prioridad==="importante"?1:2)||(a.titulo||"").localeCompare(b.titulo||"","es"));
+  let html="";
+  if(atrasadas.length){
+    html+='<div class="bloque-hoy-tareas hoy-atrasadas"><h3>⏰ Para revisar: tareas atrasadas ('+atrasadas.length+')</h3>'+atrasadas.map(t=>tarjeta(t)).join("")+'</div>';
+  }
+  html+='<div class="bloque-hoy-tareas"><h3>📅 Vencen hoy ('+deHoy.length+')</h3>';
+  html+=deHoy.length?deHoy.map(t=>tarjeta(t)).join(""):'<p class="hoy-vacio">🎉 No tenés tareas pendientes para hoy. ¡Podés avanzar con tranquilidad!</p>';
+  html+='</div>';
+  zona.innerHTML=html;
 }
 function renderizarLista(mostrarResultados=false){
   const zona=$("lista");
