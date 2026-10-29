@@ -624,9 +624,22 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 </section>
 <section id="materias" class="hidden">
 <div class="panel">
-<h2>📚 Materias</h2>
-<p>Para administrar tus materias, podés usar el campo «Materia o actividad» al agregar una tarea. Las materias que ya usás aparecen ahí para que puedas corregirlas o administrarlas.</p>
-<button type="button" class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea y administrar materias</button>
+<h2>📚 Administrar materias</h2>
+<p>Desde acá podés agregar materias nuevas, corregir nombres o quitar opciones. Si corregís el nombre, también se actualizará en las tareas que ya tenés guardadas.</p>
+<label for="nuevaMateriaPagina">Nombre de la nueva materia</label>
+<input id="nuevaMateriaPagina" maxlength="80" placeholder="Ej.: Matemática">
+<button type="button" class="primary" id="agregarMateriaPagina">➕ Agregar materia</button>
+<p id="mensajeMateriaPagina" role="status" aria-live="polite"></p>
+</div>
+<div class="panel">
+<h2>✏️ Tus materias</h2>
+<p>Elegí editar para corregir el nombre o borrar para quitar la materia de las opciones. Las tareas guardadas no se eliminan.</p>
+<div id="administrarMateriasPagina"></div>
+</div>
+<div class="panel">
+<h2>📝 ¿Querés agregar una tarea?</h2>
+<p>Cuando termines de organizar tus materias, podés volver al formulario de tareas.</p>
+<button type="button" class="primary" onclick="mostrar('tareas')">➕ Ir a tareas</button>
 </div>
 </section>
 <section id="copias" class="hidden">
@@ -664,12 +677,11 @@ function materiasDisponibles(){
 function actualizarOpcionesMaterias(){
   const materias=materiasDisponibles();
   $("opcionesMaterias").innerHTML=materias.map(m=>`<option value="${escapar(m)}"></option>`).join("");
-  const zona=$("administrarMaterias");
-  if(materias.length){
-    zona.innerHTML='<details><summary style="cursor:pointer;color:#4034aa;font-weight:bold">Administrar materias (editar o borrar)</summary><div style="margin-top:8px">'+materias.map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid #eee"><span>${escapar(m)}</span><div style="display:flex;gap:6px"><button type="button" data-editar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:7px 10px;background:#e8eaff;color:#4034aa;cursor:pointer">✏️ Editar</button><button type="button" data-borrar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:7px 10px;background:#ffe8e8;color:#a11;cursor:pointer">🗑 Borrar</button></div></div>`).join("")+'</div><small style="display:block;margin-top:8px;color:#666">Las tareas guardadas se conservan. Al editar, también se corrige la materia en esas tareas.</small></details>';
-  } else {
-    zona.innerHTML='<small style="color:#666">No hay materias disponibles. Podés escribir una en el campo Materia para agregarla.</small>';
-  }
+  const zonas=[$("administrarMaterias"),$("administrarMateriasPagina")].filter(Boolean);
+  const contenido=materias.length
+    ? materias.map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid #eee"><strong>${escapar(m)}</strong><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-editar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:8px 10px;background:#e8eaff;color:#4034aa;cursor:pointer">✏️ Editar</button><button type="button" data-borrar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:8px 10px;background:#ffe8e8;color:#a11;cursor:pointer">🗑 Borrar</button></div></div>`).join("")+'<small style="display:block;margin-top:10px;color:#666">Las tareas guardadas se conservan. Al editar, también se corrige la materia en esas tareas.</small>'
+    : '<p style="color:#666">Todavía no hay materias disponibles. Podés agregar la primera usando el campo de arriba.</p>';
+  zonas.forEach(zona=>{zona.innerHTML=contenido;});
 }
 function guardarMateriaNueva(nombre){
   const materia=String(nombre||"").trim();
@@ -684,6 +696,18 @@ function guardarMateriaNueva(nombre){
   }
   actualizarOpcionesMaterias();
 }
+$("agregarMateriaPagina")?.addEventListener("click",()=>{
+  const campo=$("nuevaMateriaPagina"),mensaje=$("mensajeMateriaPagina");
+  const nombre=(campo?.value||"").trim();
+  if(!nombre){mensaje.textContent="Escribí el nombre de la materia antes de agregarla.";campo?.focus();return;}
+  const existente=materiasDisponibles().find(m=>m.toLocaleLowerCase("es")===nombre.toLocaleLowerCase("es"));
+  if(existente){mensaje.textContent='La materia "'+existente+'" ya está en la lista.';campo.value="";return;}
+  guardarMateriaNueva(nombre);
+  campo.value="";
+  mensaje.textContent='¡Materia "'+nombre+'" agregada correctamente.';
+  actualizarOpcionesMaterias();
+});
+$("nuevaMateriaPagina")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("agregarMateriaPagina")?.click();}});
 function borrarMateria(nombre){
   const materia=String(nombre||"").trim();
   if(!materia||!materiasDisponibles().some(m=>m.toLocaleLowerCase("es")===materia.toLocaleLowerCase("es")))return;
