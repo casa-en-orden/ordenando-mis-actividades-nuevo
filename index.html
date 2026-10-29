@@ -403,6 +403,18 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .progreso-ayuda{font-size:13px;color:#687187;margin:6px 0}
 @media(max-width:460px){.progreso-grid{gap:8px}.progreso-metrica{padding:12px}.progreso-metrica strong{font-size:25px}}
 
+/* Mi tarea principal del día */
+.mi-tarea-principal{margin:16px 0 20px;padding:16px;border:1.5px solid #cfc1ff;border-radius:15px;background:linear-gradient(135deg,#f4efff,#fff)}
+.mi-tarea-principal h3{margin:0 0 6px;color:#49359b}
+.mi-tarea-principal p{margin:5px 0 12px;color:var(--suave);font-size:14px}
+.mi-tarea-principal-controles{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.mi-tarea-principal select{margin:0;min-width:0}
+.mi-tarea-principal .primary{white-space:normal}
+.mi-tarea-principal-actual{margin-top:12px;padding:11px 12px;border-radius:11px;background:#fff;border:1px solid #e2d8ff}
+.mi-tarea-principal-actual strong{display:block;color:#49359b}
+.mi-tarea-principal-actual button{margin-top:8px;border:1px solid #ded5f5;border-radius:8px;background:#fff;padding:8px 10px;color:#49359b;cursor:pointer}
+@media(max-width:520px){.mi-tarea-principal{padding:13px}.mi-tarea-principal-controles{grid-template-columns:1fr}.mi-tarea-principal .primary{width:100%}}
+ 
 /* Panel Mi día: resumen visual y próximos vencimientos */
 .hoy-resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 20px}
 .hoy-resumen-item{display:flex;flex-direction:column;gap:5px;padding:14px;border:1px solid #e5def7;border-radius:14px;background:#f3efff}
@@ -946,6 +958,26 @@ $("resumenMateriasLista")?.addEventListener("click",e=>{
     renderizarLista(true);
   }
 });
+const claveTareaPrincipalDia="ordenando-tarea-principal-dia-v1";
+function obtenerTareaPrincipalDia(){
+  try{
+    const guardada=JSON.parse(localStorage.getItem(claveTareaPrincipalDia)||"null");
+    return guardada&&guardada.fecha===new Date().toLocaleDateString("sv-SE")?String(guardada.id):"";
+  }catch(e){return "";}
+}
+function elegirTareaPrincipalDia(){
+  const selector=$("selectorTareaPrincipalDia");
+  if(!selector||!selector.value){alert("Elegí una tarea para marcarla como principal.");return;}
+  const t=tareas.find(x=>String(x.id)===String(selector.value)&&!x.hecha);
+  if(!t){alert("Esa tarea ya no está pendiente. Elegí otra.");renderizarTareasHoy();return;}
+  try{localStorage.setItem(claveTareaPrincipalDia,JSON.stringify({fecha:new Date().toLocaleDateString("sv-SE"),id:String(t.id)}));}
+  catch(e){alert("No se pudo guardar la tarea principal en este navegador.");return;}
+  renderizarTareasHoy();
+}
+function quitarTareaPrincipalDia(){
+  try{localStorage.removeItem(claveTareaPrincipalDia);}catch(e){}
+  renderizarTareasHoy();
+}
 function renderizarTareasHoy(){
   const zona=$("contenidoTareasHoy");
   const fechaZona=$("fechaPanelHoy");
@@ -961,10 +993,21 @@ function renderizarTareasHoy(){
   const urgentes=pendientes.filter(t=>t.prioridad==="urgente").length;
   const proximas=pendientes.filter(t=>fechaDe(t)>hoy&&fechaDe(t)<=(()=>{const d=new Date(hoy+"T12:00:00");d.setDate(d.getDate()+7);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");})())
     .slice().sort((a,b)=>fechaDe(a).localeCompare(fechaDe(b))||(a.prioridad==="urgente"?-1:b.prioridad==="urgente"?1:0));
+  const principalId=obtenerTareaPrincipalDia();
+  const principal=tareas.find(t=>String(t.id)===principalId&&!t.hecha);
+  const opcionesPrincipal=pendientes.slice().sort((a,b)=>fechaDe(a).localeCompare(fechaDe(b))||(a.prioridad==="urgente"?-1:b.prioridad==="urgente"?1:0)||(a.titulo||"").localeCompare(b.titulo||"","es"));
   let html='<div class="hoy-resumen" aria-label="Resumen de tus tareas">'+
     '<div class="hoy-resumen-item hoy-resumen-atrasadas"><strong>'+atrasadas.length+'</strong><span>⏰ Atrasadas</span></div>'+
     '<div class="hoy-resumen-item hoy-resumen-hoy"><strong>'+deHoy.length+'</strong><span>📅 Para hoy</span></div>'+
     '<div class="hoy-resumen-item hoy-resumen-urgentes"><strong>'+urgentes+'</strong><span>🔴 Urgentes pendientes</span></div></div>';
+  html+='<div class="mi-tarea-principal"><h3>🎯 Mi tarea principal</h3><p>Elegí una tarea para tener claro por dónde empezar. Esto no cambia su fecha ni su prioridad.</p>';
+  if(opcionesPrincipal.length){
+    html+='<div class="mi-tarea-principal-controles"><select id="selectorTareaPrincipalDia" aria-label="Elegir mi tarea principal"><option value="">Elegí una tarea pendiente…</option>'+opcionesPrincipal.map(t=>'<option value="'+escapar(String(t.id))+'" '+(String(t.id)===principalId?'selected':'')+'>'+escapar(t.titulo)+' · '+(fechaDe(t)<hoy?'Atrasada':fechaDe(t)===hoy?'Hoy':fechaTexto(fechaDe(t)))+'</option>').join("")+'</select><button type="button" class="primary" onclick="elegirTareaPrincipalDia()">⭐ Marcar como principal</button></div>';
+    if(principal)html+='<div class="mi-tarea-principal-actual"><strong>⭐ Tu prioridad elegida</strong>'+tarjeta(principal)+'<button type="button" onclick="quitarTareaPrincipalDia()">Quitar como principal</button></div>';
+  }else{
+    html+='<p>🎉 No tenés tareas pendientes. Cuando agregues una, vas a poder elegirla acá.</p>';
+  }
+  html+='</div>';
   if(atrasadas.length){
     html+='<div class="bloque-hoy-tareas hoy-atrasadas"><h3>⏰ Primero, revisá lo atrasado ('+atrasadas.length+')</h3><p class="hoy-bloque-ayuda">Si podés, empezá por una tarea atrasada y urgente.</p>'+atrasadas.map(t=>tarjeta(t)).join("")+'</div>';
   }
