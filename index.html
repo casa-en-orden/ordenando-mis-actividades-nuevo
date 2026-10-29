@@ -321,6 +321,31 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 #guardadas #lista>p{padding:16px;border-radius:12px;background:#f8f7fc;color:#59658a}
 @media(max-width:650px){#guardadas .lista-filtros{grid-template-columns:1fr;gap:4px}#guardadas .lista-filtros select{margin-bottom:8px}#guardadas .lista-busqueda{padding:12px}#guardadas #buscarTareas{padding:13px}}
 
+
+/* Calendario: controles claros y leyenda legible */
+#calendario .calendario-intro{margin-top:-5px;color:#59658a}
+#calendario .calendario-controles{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:14px 0}
+#calendario .calendario-mes{flex:1 1 230px;min-width:0}
+#calendario .calendario-mes label{display:block}
+#calendario #mes{margin:7px 0 0;min-height:48px}
+#calendario .calendario-hoy{min-height:48px;margin:0 0 14px;white-space:nowrap}
+#calendario .calendario-leyenda{display:flex;flex-wrap:wrap;gap:8px 14px;margin:0 0 16px;padding:12px 14px;background:#f8f6ff;border:1px solid #e6defb;border-radius:12px}
+#calendario .calendario-leyenda span{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:#45436c}
+#calendario .punto-leyenda{display:inline-block;width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px #fff,0 0 0 3px #d9d6e8}
+#calendario .punto-leyenda.normal{background:#28a36a}
+#calendario .punto-leyenda.importante{background:#e7a000}
+#calendario .punto-leyenda.urgente{background:#e53935}
+#calendario .punto-leyenda.elegido{background:#7656d9}
+#calendario #calendarioColores>div{gap:6px!important}
+#calendario .dia-calendario{box-shadow:0 2px 5px #342b5a0a;transition:transform .12s ease,border-color .12s ease;line-height:1.25}
+#calendario .dia-calendario.seleccionado{background:#7656d9!important;color:#fff;border:2px solid #5036a8;box-shadow:0 0 0 3px #7656d927}
+#calendario .dia-calendario.seleccionado .cantidad{color:#fff}
+#calendario .dia-calendario .cantidad{line-height:1.25}
+#calendario .detalle-dia{margin-top:18px;scroll-margin-top:90px}
+#calendario .detalle-dia h3{color:#4933a3}
+@media(hover:hover){#calendario .dia-calendario:hover{transform:translateY(-2px);border-color:#9a84e8}}
+@media(max-width:520px){#calendario .calendario-controles{align-items:stretch;gap:4px}#calendario .calendario-mes{flex-basis:100%}#calendario .calendario-hoy{align-self:flex-start;margin:2px 0 10px}#calendario .calendario-leyenda{gap:9px;padding:10px}#calendario .calendario-leyenda span{font-size:12px}#calendario #calendarioColores>div{gap:3px!important}#calendario .dia-calendario{min-height:48px;padding:4px 1px;font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -455,10 +480,12 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <section id="calendario" class="hidden">
 <div class="panel">
 <h2>📅 Calendario de actividades</h2>
-<label for="mes">Elegí el mes y después tocá un día para ver sus tareas</label>
-<input id="mes" type="month">
-<button type="button" class="primary" onclick="irAHoy()" style="margin:0 0 14px">📍 Ir a hoy</button>
-<div style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px;font-size:14px"><span>🟢 Normal</span><span>🟡 Importante</span><span>🔴 Urgente</span><span>🔵 Día elegido</span></div>
+<p class="calendario-intro">Elegí un mes y tocá cualquier día para consultar tus tareas. Los colores muestran la prioridad de las tareas pendientes.</p>
+<div class="calendario-controles">
+<div class="calendario-mes"><label for="mes">🗓️ Elegir mes</label><input id="mes" type="month"></div>
+<button type="button" class="primary calendario-hoy" onclick="irAHoy()">📍 Ir a hoy</button>
+</div>
+<div class="calendario-leyenda"><span><i class="punto-leyenda normal"></i>Normal</span><span><i class="punto-leyenda importante"></i>Importante</span><span><i class="punto-leyenda urgente"></i>Urgente</span><span><i class="punto-leyenda elegido"></i>Día elegido</span></div>
 <div id="calendarioColores"></div>
 <div id="dia" aria-live="polite"></div>
 </div>
