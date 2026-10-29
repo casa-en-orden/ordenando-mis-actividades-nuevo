@@ -416,6 +416,8 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .estudio-config input{width:72px;margin:0;padding:8px}
 .estudio-ayuda{text-align:center;font-size:12px;color:#687187}
 @media(max-width:480px){.estudio-sesion{padding:12px}.estudio-controles button{flex:1}}
+.paso-item .paso-editar{padding:6px 8px;border-color:#d9dff0;color:#4e5d7b}
+.paso-item .paso-acciones{display:flex;gap:5px;align-items:center}
 /* Lista de pasos para dividir una tarea grande */
 .pasos-tarea{margin-top:12px;padding:12px;border:1px solid #d8e9df;border-radius:12px;background:#f4fbf6}
 .pasos-tarea h4{margin:0 0 8px;color:#216c43}
@@ -1081,11 +1083,29 @@ function eliminarPasoTarea(id,pasoId){
   const pasos=leerPasosTarea(id).filter(p=>String(p.id)!==String(pasoId));
   if(guardarPasosTarea(id,pasos))renderizarTareasHoy();
 }
+function editarPasoTarea(id,pasoId){
+  const paso=leerPasosTarea(id).find(p=>String(p.id)===String(pasoId));
+  if(!paso)return;
+  const nuevo=prompt("Cambiar el texto de este paso:",paso.texto);
+  if(nuevo===null)return;
+  const texto=nuevo.trim();
+  if(!texto){alert("El paso no puede quedar vacío. Si querés quitarlo, usá el botón ✕.");return;}
+  const pasos=leerPasosTarea(id).map(p=>String(p.id)===String(pasoId)?{...p,texto:texto.slice(0,180)}:p);
+  if(guardarPasosTarea(id,pasos))renderizarTareasHoy();
+}
 function renderBloquePasosTarea(t){
-  const pasos=leerPasosTarea(t.id);
+  let pasos=leerPasosTarea(t.id);
+  if(!pasos.length){
+    pasos=[
+      {id:"ejemplo-leer",texto:"Leer el material",hecho:false},
+      {id:"ejemplo-resumen",texto:"Hacer un resumen",hecho:false},
+      {id:"ejemplo-repasar",texto:"Repasar lo estudiado",hecho:false}
+    ];
+    guardarPasosTarea(t.id,pasos);
+  }
   const hechas=pasos.filter(p=>p.hecho).length;
-  return '<div class="pasos-tarea"><h4>🪜 Dividí esta tarea en pasos</h4><p class="hoy-bloque-ayuda">Agregá acciones pequeñas y marcá cada una al terminarla.</p><form class="pasos-form" onsubmit="event.preventDefault();agregarPasoTarea(\''+escapar(String(t.id))+'\')"><input id="nuevoPasoTarea" maxlength="180" placeholder="Ej.: leer las primeras 5 páginas" aria-label="Nuevo paso de la tarea"><button type="submit">➕ Agregar paso</button></form>'+
-    (pasos.length?'<ul class="pasos-lista">'+pasos.map(p=>'<li class="paso-item '+(p.hecho?'hecho':'')+'"><input type="checkbox" '+(p.hecho?'checked':'')+' aria-label="Marcar paso" onchange="cambiarEstadoPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\',this.checked)"><span>'+escapar(p.texto)+'</span><button type="button" aria-label="Eliminar paso" onclick="eliminarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✕</button></li>').join("")+'</ul><p class="pasos-progreso">'+hechas+' de '+pasos.length+' pasos completados</p>':'<p class="pasos-progreso">Todavía no agregaste pasos.</p>')+'</div>';
+  return '<div class="pasos-tarea"><h4>🪜 Dividí esta tarea en pasos</h4><p class="hoy-bloque-ayuda">Estos ejemplos se pueden editar, completar o eliminar. También podés agregar todos los pasos que necesites.</p><form class="pasos-form" onsubmit="event.preventDefault();agregarPasoTarea(\''+escapar(String(t.id))+'\')"><input id="nuevoPasoTarea" maxlength="180" placeholder="Escribí otro paso…" aria-label="Nuevo paso de la tarea"><button type="submit">➕ Agregar paso</button></form>'+
+    '<ul class="pasos-lista">'+pasos.map(p=>'<li class="paso-item '+(p.hecho?'hecho':'')+'"><input type="checkbox" '+(p.hecho?'checked':'')+' aria-label="Marcar paso" onchange="cambiarEstadoPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\',this.checked)"><span>'+escapar(p.texto)+'</span><span class="paso-acciones"><button type="button" class="paso-editar" onclick="editarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✏️</button><button type="button" aria-label="Eliminar paso" onclick="eliminarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✕</button></span></li>').join("")+'</ul><p class="pasos-progreso">'+hechas+' de '+pasos.length+' pasos completados</p></div>';
 }
 function renderizarTareasHoy(){
   const zona=$("contenidoTareasHoy");
