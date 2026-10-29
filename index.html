@@ -279,6 +279,13 @@ footer{padding:12px 14px 17px;margin-bottom:12px}
  .dia-calendario{min-height:39px}
 }
 
+
+/* Navegación con nombres más directos para evitar confusiones */
+nav button{white-space:nowrap}
+nav button[data-tab="tareas"]{background:#f0eaff;color:#4d35ad;border-color:#e0d5ff}
+nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:#7656d9}
+@media(max-width:600px){nav button{padding:8px 10px;font-size:12px}}
+
 </style>
 </head>
 <body>
@@ -293,8 +300,8 @@ footer{padding:12px 14px 17px;margin-bottom:12px}
 </section>
 <nav aria-label="Navegación principal">
 <button class="active" data-tab="inicio">🏠 Inicio</button>
-<button data-tab="tareas">📝 Mis tareas</button>
-<button data-tab="guardadas">📋 Mis tareas guardadas</button>
+<button data-tab="tareas">➕ Agregar tarea</button>
+<button data-tab="guardadas">📋 Lista de tareas</button>
 <button data-tab="semana">🗓️ Plan semanal</button>
 <button data-tab="calendario">📅 Calendario</button>
 <button data-tab="copias">🛟 Copia de seguridad</button>
