@@ -946,8 +946,9 @@ function revisarRecordatorios(){
     const clave=String(t.id)+"-"+hoy;
     if(enviados[clave])return;
     const cuando=t.fecha===hoy?"vence hoy":("vence el "+fechaTexto(t.fecha));
+    const prioridad=t.prioridad==="urgente"?"🔴 URGENTE":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal";
     try{
-      new Notification("📚 ORDENANDO MIS ACTIVIDADES",{body:(t.titulo||"Tenés una tarea")+" — "+cuando,tag:clave});
+      new Notification("📚 Recordatorio de tarea",{body:prioridad+" · "+(t.titulo||"Tenés una tarea")+" — "+cuando,tag:clave});
       enviados[clave]=true;
     }catch(e){}
   });
