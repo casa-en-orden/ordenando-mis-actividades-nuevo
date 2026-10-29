@@ -403,6 +403,21 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .progreso-ayuda{font-size:13px;color:#687187;margin:6px 0}
 @media(max-width:460px){.progreso-grid{gap:8px}.progreso-metrica{padding:12px}.progreso-metrica strong{font-size:25px}}
 
+/* Panel Mi día: resumen visual y próximos vencimientos */
+.hoy-resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 20px}
+.hoy-resumen-item{display:flex;flex-direction:column;gap:5px;padding:14px;border:1px solid #e5def7;border-radius:14px;background:#f3efff}
+.hoy-resumen-item strong{font-size:29px;line-height:1.1;color:#49359b}
+.hoy-resumen-item span{font-size:13px;font-weight:700;color:#514b70}
+.hoy-resumen-atrasadas{background:#fff0f2;border-color:#f7d2d9}
+.hoy-resumen-atrasadas strong,.hoy-resumen-atrasadas span{color:#a42e49}
+.hoy-resumen-hoy{background:#fff7e5;border-color:#f3e1b8}
+.hoy-resumen-hoy strong,.hoy-resumen-hoy span{color:#865900}
+.hoy-resumen-urgentes{background:#eef9f1;border-color:#d1ebd8}
+.hoy-resumen-urgentes strong,.hoy-resumen-urgentes span{color:#216c43}
+.hoy-bloque-ayuda{font-size:14px;color:var(--suave);margin-top:-5px}
+.hoy-proximas{padding-top:14px;border-top:1px solid var(--linea);margin-top:20px}
+@media(max-width:480px){.hoy-resumen{gap:7px}.hoy-resumen-item{padding:10px 8px;border-radius:11px}.hoy-resumen-item strong{font-size:24px}.hoy-resumen-item span{font-size:11px;line-height:1.35}}
+ 
 /* Meta diaria */
 .meta-diaria{margin-top:14px;padding:15px;border-radius:14px;background:#fff9e8;border:1px solid #f2dfaa}
 .meta-diaria-controles{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
@@ -938,17 +953,27 @@ function renderizarTareasHoy(){
   const hoy=new Date().toLocaleDateString("sv-SE");
   if(fechaZona)fechaZona.textContent=new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
   const pendientes=tareas.filter(t=>!t.hecha);
-  const atrasadas=pendientes.filter(t=>String(t.fecha||"").slice(0,10)!==""&&String(t.fecha||"").slice(0,10)<hoy)
-    .slice().sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||""));
-  const deHoy=pendientes.filter(t=>String(t.fecha||"").slice(0,10)===hoy)
+  const fechaDe=t=>String(t.fecha||"").slice(0,10);
+  const atrasadas=pendientes.filter(t=>fechaDe(t)!==""&&fechaDe(t)<hoy)
+    .slice().sort((a,b)=>fechaDe(a).localeCompare(fechaDe(b))||(a.prioridad==="urgente"?-1:b.prioridad==="urgente"?1:0));
+  const deHoy=pendientes.filter(t=>fechaDe(t)===hoy)
     .slice().sort((a,b)=>(a.prioridad==="urgente"?0:a.prioridad==="importante"?1:2)-(b.prioridad==="urgente"?0:b.prioridad==="importante"?1:2)||(a.titulo||"").localeCompare(b.titulo||"","es"));
-  let html="";
+  const urgentes=pendientes.filter(t=>t.prioridad==="urgente").length;
+  const proximas=pendientes.filter(t=>fechaDe(t)>hoy&&fechaDe(t)<=(()=>{const d=new Date(hoy+"T12:00:00");d.setDate(d.getDate()+7);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");})())
+    .slice().sort((a,b)=>fechaDe(a).localeCompare(fechaDe(b))||(a.prioridad==="urgente"?-1:b.prioridad==="urgente"?1:0));
+  let html='<div class="hoy-resumen" aria-label="Resumen de tus tareas">'+
+    '<div class="hoy-resumen-item hoy-resumen-atrasadas"><strong>'+atrasadas.length+'</strong><span>⏰ Atrasadas</span></div>'+
+    '<div class="hoy-resumen-item hoy-resumen-hoy"><strong>'+deHoy.length+'</strong><span>📅 Para hoy</span></div>'+
+    '<div class="hoy-resumen-item hoy-resumen-urgentes"><strong>'+urgentes+'</strong><span>🔴 Urgentes pendientes</span></div></div>';
   if(atrasadas.length){
-    html+='<div class="bloque-hoy-tareas hoy-atrasadas"><h3>⏰ Para revisar: tareas atrasadas ('+atrasadas.length+')</h3>'+atrasadas.map(t=>tarjeta(t)).join("")+'</div>';
+    html+='<div class="bloque-hoy-tareas hoy-atrasadas"><h3>⏰ Primero, revisá lo atrasado ('+atrasadas.length+')</h3><p class="hoy-bloque-ayuda">Si podés, empezá por una tarea atrasada y urgente.</p>'+atrasadas.map(t=>tarjeta(t)).join("")+'</div>';
   }
-  html+='<div class="bloque-hoy-tareas"><h3>📅 Vencen hoy ('+deHoy.length+')</h3>';
+  html+='<div class="bloque-hoy-tareas"><h3>📅 Tus tareas para hoy ('+deHoy.length+')</h3>';
   html+=deHoy.length?deHoy.map(t=>tarjeta(t)).join(""):'<p class="hoy-vacio">🎉 No tenés tareas pendientes para hoy. ¡Podés avanzar con tranquilidad!</p>';
   html+='</div>';
+  if(proximas.length){
+    html+='<div class="bloque-hoy-tareas hoy-proximas"><h3>🔭 Para ir preparando</h3><p class="hoy-bloque-ayuda">Estas tareas vencen durante los próximos 7 días.</p>'+proximas.slice(0,5).map(t=>tarjeta(t)).join("")+(proximas.length>5?'<p class="hoy-bloque-ayuda">Y '+(proximas.length-5)+' tarea(s) más en los próximos 7 días.</p>':'')+'</div>';
+  }
   zona.innerHTML=html;
 }
 function renderizarLista(mostrarResultados=false){
