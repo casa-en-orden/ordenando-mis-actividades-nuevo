@@ -1379,6 +1379,8 @@ function consultarDia(){
 $("mes").value=new Date().toLocaleDateString("sv-SE").slice(0,7);
 fechaCalendarioSeleccionada=new Date().toLocaleDateString("sv-SE");
 $("mes").addEventListener("change",()=>{const mes=$("mes").value;if(!mes)return;verTareasDelDia(mes+"-01");});
+consultarDia();
+verTareasDelDia(fechaCalendarioSeleccionada);
 $("fecha").value=new Date().toLocaleDateString("sv-SE");
 actualizarOpcionesMaterias();
 actualizarBotonRecordatorios();
