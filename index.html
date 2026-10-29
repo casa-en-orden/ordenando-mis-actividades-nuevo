@@ -409,6 +409,15 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .meta-diaria input{width:90px;max-width:100%;padding:9px;border:1px solid #d8cda9;border-radius:9px;font:inherit}
 .meta-diaria-mensaje{font-weight:700;color:#72551a;margin:8px 0 0}
 
+/* Resumen por materia */
+.resumen-materias-lista{display:grid;gap:10px;margin-top:14px}
+.resumen-materia{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;padding:13px;border:1px solid #e4def4;border-radius:13px;background:#fff}
+.resumen-materia-nombre{font-weight:700;color:#403477;overflow-wrap:anywhere}
+.resumen-materia-datos{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;color:#596174;margin-top:5px}
+.resumen-materia-alerta{color:#a43d35;font-weight:700}
+.resumen-materia button{grid-column:1/-1;justify-self:start}
+.resumen-materias-vacio{padding:12px;border-radius:12px;background:#f8f7ff;color:#626078}
+
 </style>
 </head>
 <body>
@@ -462,6 +471,11 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <p class="meta-diaria-mensaje" id="mensajeMetaDiaria" aria-live="polite">¡Vos podés!</p>
 </div>
 <p class="progreso-ayuda">El avance semanal se calcula con las tareas cuya fecha corresponde a esta semana. Las tareas completadas antes de esta mejora no tienen fecha de finalización registrada y no cuentan en el indicador diario.</p>
+</div>
+<div class="panel" id="panelResumenMaterias">
+<h2>📚 Resumen por materia</h2>
+<p>Revisá tus pendientes, lo que ya completaste y las tareas atrasadas de cada materia.</p>
+<div id="resumenMateriasLista" class="resumen-materias-lista" aria-live="polite"></div>
 </div>
 <div class="panel panel-tareas-hoy" id="panelTareasHoy">
 <h2>🎯 Tu día de hoy</h2>
@@ -783,6 +797,7 @@ $("resumen").textContent=`Tenés ${pendientes.length} tareas pendientes y ${tare
 $("avisos").innerHTML=pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).length?`<div class="notice" role="alert"><strong>🚨 ¡ATENCIÓN! TENÉS TAREAS PARA REVISAR</strong><p>${pendientes.filter(t=>t.fecha<=new Date(Date.now()+3*86400000).toLocaleDateString("sv-SE")).map(t=>"📌 "+escapar(t.titulo)+(t.materia?" · 📚 "+escapar(t.materia):" · Actividad general")+" — "+(t.fecha<hoy?"VENCIDA · ":t.fecha===hoy?"¡VENCE HOY! · ":"Vence: ")+fechaTexto(t.fecha)).join("<br>")}</p><button type="button" onclick="mostrar(&quot;guardadas&quot;)">👀 VER MIS TAREAS</button></div>`:"";
 renderizarLista();
 renderizarProgreso();
+renderizarResumenMaterias();
 renderizarTareasHoy();
 consultarDia();
 renderizarPlanSemanal();
@@ -817,6 +832,39 @@ function renderizarProgreso(){
   const barra=$("barraProgresoSemana");if(barra)barra.setAttribute("aria-valuenow",String(porcentaje));
   const relleno=$("rellenoProgresoSemana");if(relleno)relleno.style.width=porcentaje+"%";
 }
+function renderizarResumenMaterias(){
+  const zona=$("resumenMateriasLista");
+  if(!zona)return;
+  const hoy=new Date().toLocaleDateString("sv-SE");
+  const materias=[...new Set(tareas.map(t=>String(t.materia||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  const general=tareas.filter(t=>!String(t.materia||"").trim());
+  const grupos=materias.map(m=>{
+    const lista=tareas.filter(t=>String(t.materia||"").trim().toLocaleLowerCase("es")===m.toLocaleLowerCase("es"));
+    return {nombre:m,pendientes:lista.filter(t=>!t.hecha).length,completadas:lista.filter(t=>t.hecha).length,atrasadas:lista.filter(t=>!t.hecha&&t.fecha&&String(t.fecha).slice(0,10)<hoy).length,total:lista.length};
+  });
+  if(general.length)grupos.push({nombre:"Sin materia",pendientes:general.filter(t=>!t.hecha).length,completadas:general.filter(t=>t.hecha).length,atrasadas:general.filter(t=>!t.hecha&&t.fecha&&String(t.fecha).slice(0,10)<hoy).length,total:general.length});
+  grupos.sort((a,b)=>b.atrasadas-a.atrasadas||b.pendientes-a.pendientes||a.nombre.localeCompare(b.nombre,"es"));
+  if(!grupos.length){zona.innerHTML='<p class="resumen-materias-vacio">Todavía no hay tareas para resumir. Cuando agregues tareas, vas a ver acá el avance por materia.</p>';return;}
+  zona.innerHTML=grupos.map(g=>'<div class="resumen-materia"><div><div class="resumen-materia-nombre">'+escapar(g.nombre)+'</div><div class="resumen-materia-datos"><span>⏳ '+g.pendientes+' pendientes</span><span>✅ '+g.completadas+' completadas</span>'+(g.atrasadas?'<span class="resumen-materia-alerta">⚠️ '+g.atrasadas+' atrasadas</span>':'')+'</div></div><strong>'+g.total+' total</strong><button type="button" class="secondary" data-ver-materia="'+escapar(g.nombre)+'">🔎 Ver tareas</button></div>').join("");
+}
+$("resumenMateriasLista")?.addEventListener("click",e=>{
+  const boton=e.target.closest("[data-ver-materia]");
+  if(!boton)return;
+  const materia=boton.getAttribute("data-ver-materia");
+  mostrar("guardadas");
+  const selector=$("filtroMateria");
+  if(selector){selector.value=materia==="Sin materia"?"":materia;}
+  if(materia==="Sin materia"){
+    $("buscarTareas").value="";
+    $("filtroEstado").value="pendientes";
+    renderizarLista(true);
+    const zona=$("lista");
+    const sinMateria=tareas.filter(t=>!String(t.materia||"").trim()&&!t.hecha).sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||""));
+    zona.innerHTML=sinMateria.map(tarjeta).join("")||'<p>No hay tareas pendientes sin materia.</p>';
+  }else{
+    renderizarLista(true);
+  }
+});
 function renderizarTareasHoy(){
   const zona=$("contenidoTareasHoy");
   const fechaZona=$("fechaPanelHoy");
