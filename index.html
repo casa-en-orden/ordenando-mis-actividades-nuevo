@@ -403,6 +403,19 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .progreso-ayuda{font-size:13px;color:#687187;margin:6px 0}
 @media(max-width:460px){.progreso-grid{gap:8px}.progreso-metrica{padding:12px}.progreso-metrica strong{font-size:25px}}
 
+/* Sesiones de estudio y descansos en Mi día */
+.estudio-sesion{margin:16px 0;padding:16px;border:1px solid #d9e7fb;border-radius:15px;background:linear-gradient(135deg,#eef5ff,#f9fbff)}
+.estudio-sesion h3{margin:0 0 6px;color:#315a94}
+.estudio-sesion p{margin:5px 0 12px;color:var(--suave);font-size:14px}
+.estudio-reloj{font-size:clamp(34px,8vw,48px);font-weight:800;letter-spacing:1px;text-align:center;color:#315a94;font-variant-numeric:tabular-nums;padding:8px}
+.estudio-etapa{text-align:center;font-weight:700;color:#315a94}
+.estudio-controles{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.estudio-controles button,.estudio-config button{border:1px solid #cbdcf5;border-radius:9px;padding:9px 12px;background:#fff;color:#315a94;cursor:pointer}
+.estudio-config{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.estudio-config label{font-size:13px;color:#52647d}
+.estudio-config input{width:72px;margin:0;padding:8px}
+.estudio-ayuda{text-align:center;font-size:12px;color:#687187}
+@media(max-width:480px){.estudio-sesion{padding:12px}.estudio-controles button{flex:1}}
 /* Lista de pasos para dividir una tarea grande */
 .pasos-tarea{margin-top:12px;padding:12px;border:1px solid #d8e9df;border-radius:12px;background:#f4fbf6}
 .pasos-tarea h4{margin:0 0 8px;color:#216c43}
@@ -991,6 +1004,60 @@ function quitarTareaPrincipalDia(){
   try{localStorage.removeItem(claveTareaPrincipalDia);}catch(e){}
   renderizarTareasHoy();
 }
+let relojEstudioIntervalo=null;
+let relojEstudioFin=0;
+let relojEstudioRestante=25*60;
+let relojEstudioModo="estudio";
+let relojEstudioActivo=false;
+function actualizarVistaRelojEstudio(){
+  const reloj=$("relojEstudioTiempo"),estado=$("relojEstudioEstado"),boton=$("relojEstudioIniciar");
+  if(!reloj||!estado||!boton)return;
+  const seg=Math.max(0,Math.ceil(relojEstudioRestante));
+  reloj.textContent=String(Math.floor(seg/60)).padStart(2,"0")+":"+String(seg%60).padStart(2,"0");
+  estado.textContent=relojEstudioModo==="estudio"?"📘 Sesión de estudio":"☕ Descanso";
+  boton.textContent=relojEstudioActivo?"⏸ Pausar":"▶️ "+(seg===0?"Comenzar de nuevo":"Comenzar");
+}
+function finalizarRelojEstudio(){
+  if(relojEstudioIntervalo!==null)clearInterval(relojEstudioIntervalo);
+  relojEstudioIntervalo=null;relojEstudioActivo=false;relojEstudioRestante=0;
+  actualizarVistaRelojEstudio();
+  const estado=$("relojEstudioEstado");
+  if(estado)estado.textContent=relojEstudioModo==="estudio"?"🎉 ¡Sesión terminada! Hora de descansar.":"🌿 Descanso terminado. Cuando quieras, podés volver a estudiar.";
+  try{if(typeof Notification!=="undefined"&&Notification.permission==="granted")new Notification("ORDENANDO MIS ACTIVIDADES",{body:relojEstudioModo==="estudio"?"Terminaste tu sesión. ¡Tomate un descanso!":"Terminó tu descanso. ¡Podés continuar cuando quieras!"});}catch(e){}
+  alert(relojEstudioModo==="estudio"?"¡Terminaste la sesión de estudio! Es un buen momento para descansar.":"¡Terminó el descanso! Podés empezar otra sesión cuando quieras.");
+}
+function alternarRelojEstudio(){
+  if(relojEstudioActivo){
+    relojEstudioRestante=Math.max(0,(relojEstudioFin-Date.now())/1000);
+    if(relojEstudioIntervalo!==null)clearInterval(relojEstudioIntervalo);
+    relojEstudioIntervalo=null;relojEstudioActivo=false;actualizarVistaRelojEstudio();return;
+  }
+  if(relojEstudioRestante<=0)reiniciarRelojEstudio();
+  relojEstudioFin=Date.now()+relojEstudioRestante*1000;relojEstudioActivo=true;
+  relojEstudioIntervalo=setInterval(()=>{
+    relojEstudioRestante=Math.max(0,(relojEstudioFin-Date.now())/1000);
+    if(relojEstudioRestante<=0){finalizarRelojEstudio();return;}
+    actualizarVistaRelojEstudio();
+  },250);
+  actualizarVistaRelojEstudio();
+}
+function reiniciarRelojEstudio(){
+  if(relojEstudioIntervalo!==null)clearInterval(relojEstudioIntervalo);
+  relojEstudioIntervalo=null;relojEstudioActivo=false;
+  const campo=$("duracionEstudio");
+  const mins=campo?Math.max(1,Math.min(180,parseInt(campo.value,10)||25)):25;
+  relojEstudioModo="estudio";relojEstudioRestante=mins*60;actualizarVistaRelojEstudio();
+}
+function iniciarDescansoEstudio(){
+  if(relojEstudioIntervalo!==null)clearInterval(relojEstudioIntervalo);
+  relojEstudioIntervalo=null;relojEstudioActivo=false;
+  const campo=$("duracionDescanso");
+  const mins=campo?Math.max(1,Math.min(60,parseInt(campo.value,10)||5)):5;
+  relojEstudioModo="descanso";relojEstudioRestante=mins*60;actualizarVistaRelojEstudio();
+}
+function renderBloqueSesionEstudio(){
+  return '<div class="estudio-sesion"><h3>⏱️ Sesiones de estudio y descanso</h3><p>Trabajá con foco durante un tiempo y después hacé una pausa. El reloj funciona mientras la aplicación permanezca abierta.</p><div id="relojEstudioEstado" class="estudio-etapa">📘 Sesión de estudio</div><div id="relojEstudioTiempo" class="estudio-reloj" aria-live="off">25:00</div><div class="estudio-config"><label for="duracionEstudio">Estudio (min)</label><input id="duracionEstudio" type="number" min="1" max="180" value="25" onchange="reiniciarRelojEstudio()"><label for="duracionDescanso">Descanso (min)</label><input id="duracionDescanso" type="number" min="1" max="60" value="5"></div><div class="estudio-controles"><button type="button" id="relojEstudioIniciar" onclick="alternarRelojEstudio()">▶️ Comenzar</button><button type="button" onclick="reiniciarRelojEstudio()">↻ Reiniciar estudio</button><button type="button" onclick="iniciarDescansoEstudio()">☕ Iniciar descanso</button></div><p class="estudio-ayuda">El temporizador no cambia ni completa tus tareas automáticamente.</p></div>';
+}
 const clavePasosTareas="ordenando-pasos-tareas-v1";
 function leerPasosTarea(id){
   try{const todos=JSON.parse(localStorage.getItem(clavePasosTareas)||"{}");return Array.isArray(todos[String(id)])?todos[String(id)]:[];}catch(e){return [];}
@@ -1050,6 +1117,7 @@ function renderizarTareasHoy(){
     html+='<p>🎉 No tenés tareas pendientes. Cuando agregues una, vas a poder elegirla acá.</p>';
   }
   html+='</div>';
+  html+=renderBloqueSesionEstudio();
   if(atrasadas.length){
     html+='<div class="bloque-hoy-tareas hoy-atrasadas"><h3>⏰ Primero, revisá lo atrasado ('+atrasadas.length+')</h3><p class="hoy-bloque-ayuda">Si podés, empezá por una tarea atrasada y urgente.</p>'+atrasadas.map(t=>tarjeta(t)).join("")+'</div>';
   }
