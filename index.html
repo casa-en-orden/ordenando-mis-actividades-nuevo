@@ -301,6 +301,26 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 #avisos .notice{margin-bottom:0}
 @media(max-width:760px){.inicio-resumen{grid-template-columns:1fr;gap:0}.inicio-resumen>.panel{margin-bottom:12px}.inicio-estadisticas .estadisticas{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.inicio-estadisticas .estadistica,.inicio-estadisticas .estadistica.hoy,.inicio-estadisticas .estadistica.atrasadas,.inicio-estadisticas .estadistica.urgentes{min-height:95px;padding:11px}.inicio-estadisticas .estadistica strong{font-size:28px}}
+
+/* Lista de tareas: búsqueda protagonista y filtros ordenados */
+#guardadas .lista-intro{margin-top:-5px;color:#59658a;max-width:760px}
+#guardadas .lista-busqueda{padding:16px;margin:15px 0;background:linear-gradient(135deg,#f3edff,#f5faff);border:1px solid #dfd5ff;border-radius:15px}
+#guardadas .lista-busqueda label{display:block;color:#4933a3;font-size:15px}
+#guardadas #buscarTareas{margin:8px 0 0;padding:15px 16px;border:2px solid #d6c9ff;border-radius:12px;font-size:16px;box-shadow:0 3px 10px #4933a30b}
+#guardadas #buscarTareas:focus{border-color:#7652d4;box-shadow:0 0 0 4px #7652d41c}
+#guardadas .lista-filtros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+#guardadas .lista-filtros label{display:block;min-width:0}
+#guardadas .lista-filtros select{margin:7px 0 0;min-height:48px}
+#guardadas .lista-limpiar{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 13px;margin:0 0 14px;border:1px solid #dcd5ef;border-radius:10px;background:#fff;color:#55458e;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+#guardadas .lista-limpiar:hover{background:#f5f0ff;border-color:#c9b9f5}
+#guardadas #ayudaLista{padding:12px 14px;background:#f8f7fc;border:1px dashed #d9d2eb;border-radius:11px;color:#626782!important}
+#guardadas #lista .task{padding:16px;border-radius:14px}
+#guardadas #lista .task>strong{display:block;font-size:17px;color:#302d61}
+#guardadas #lista .task>small{font-size:13px}
+#guardadas #lista .task button{margin-top:11px;padding:9px 12px}
+#guardadas #lista>p{padding:16px;border-radius:12px;background:#f8f7fc;color:#59658a}
+@media(max-width:650px){#guardadas .lista-filtros{grid-template-columns:1fr;gap:4px}#guardadas .lista-filtros select{margin-bottom:8px}#guardadas .lista-busqueda{padding:12px}#guardadas #buscarTareas{padding:13px}}
+
 </style>
 </head>
 <body>
@@ -392,28 +412,30 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 </section>
 <section id="guardadas" class="hidden">
 <div class="panel">
-<h2>📋 Mis tareas guardadas</h2>
-<p>Buscá tus tareas con palabras simples o usá los filtros. No se modifica ni se borra nada al buscar.</p>
-<label for="buscarTareas">🔎 Buscar por nombre, materia o notas</label>
-<input id="buscarTareas" type="search" placeholder="Ej.: Matemática, prueba, estudiar">
-<label for="filtroMateria">Materia</label>
+<h2>📋 Lista de tareas</h2>
+<p class="lista-intro">Encontrá rápido lo que necesitás. Podés combinar la búsqueda con los filtros; tus tareas guardadas no se modifican al buscar.</p>
+<div class="lista-busqueda">
+<label for="buscarTareas">🔎 ¿Qué tarea estás buscando?</label>
+<input id="buscarTareas" type="search" placeholder="Escribí una tarea, materia o palabra clave" autocomplete="off">
+</div>
+<div class="lista-filtros"><label for="filtroMateria">📚 Materia</label>
 <select id="filtroMateria"><option value="">Todas las materias</option></select>
-<label for="filtroPrioridad">Prioridad</label>
+<label for="filtroPrioridad">🎯 Prioridad</label>
 <select id="filtroPrioridad">
 <option value="">Todas las prioridades</option>
 <option value="normal">🟢 Normal</option>
 <option value="importante">🟡 Importante</option>
 <option value="urgente">🔴 Urgente</option>
 </select>
-<label for="filtroEstado">Estado</label>
+<label for="filtroEstado">📌 Mostrar</label>
 <select id="filtroEstado">
 <option value="pendientes">Tareas pendientes</option>
 <option value="">Todas las tareas</option>
 <option value="vencidas">Tareas vencidas</option>
 <option value="completadas">Tareas completadas</option>
 </select>
-<button type="button" class="primary" id="limpiarFiltros" style="margin-bottom:12px">Limpiar búsqueda y filtros</button>
-<p id="ayudaLista" style="color:#666;margin:4px 0 12px">Las tareas aparecerán acá cuando busques o elijas un filtro.</p>
+</div><button type="button" id="limpiarFiltros" class="lista-limpiar">↺ Limpiar búsqueda y filtros</button>
+<p id="ayudaLista" style="color:#666;margin:4px 0 12px">Tus tareas pendientes se mostrarán cuando empieces a buscar o cambies los filtros.</p>
 <div id="lista" aria-live="polite" class="hidden"></div>
 </div>
 </section>
