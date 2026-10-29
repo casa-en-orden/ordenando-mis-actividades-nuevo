@@ -346,6 +346,25 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 @media(hover:hover){#calendario .dia-calendario:hover{transform:translateY(-2px);border-color:#9a84e8}}
 @media(max-width:520px){#calendario .calendario-controles{align-items:stretch;gap:4px}#calendario .calendario-mes{flex-basis:100%}#calendario .calendario-hoy{align-self:flex-start;margin:2px 0 10px}#calendario .calendario-leyenda{gap:9px;padding:10px}#calendario .calendario-leyenda span{font-size:12px}#calendario #calendarioColores>div{gap:3px!important}#calendario .dia-calendario{min-height:48px;padding:4px 1px;font-size:13px}}
 
+
+/* Plan semanal: lectura rápida y mejor orientación */
+#semana .semana-intro{margin-top:-5px;color:#59658a}
+#semana .semana-controles{display:flex;flex-wrap:wrap;gap:9px;margin:15px 0 12px}
+#semana .semana-controles button{min-height:44px}
+#semana .semana-rango{margin:12px 0;padding:13px 15px;border-radius:12px;background:#f1ecff;border:1px solid #dfd3ff;color:#4933a3;font-weight:800}
+#semana .semana-leyenda{display:flex;flex-wrap:wrap;gap:8px 15px;margin:0 0 16px;padding:11px 13px;border:1px solid #e6defb;background:#fbf9ff;border-radius:12px}
+#semana .semana-leyenda span{font-size:13px;font-weight:700;color:#55516f}
+#semana #planSemanal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+#semana .semana-dia{min-width:0;margin:0;padding:15px;border-radius:15px;border:1px solid #dce7ff;background:linear-gradient(135deg,#fbf8ff,#fff)}
+#semana .semana-dia h3{text-transform:capitalize;margin:0 0 8px;font-size:17px;color:#3e3297}
+#semana .semana-dia>small{display:block;padding:8px 9px;margin-bottom:10px;border-radius:9px;background:#fff;border:1px solid #e8e3f4;color:#5a5b78;font-size:12px}
+#semana .semana-dia.hoy{border:2px solid #9477e8;background:linear-gradient(135deg,#f3edff,#fff);box-shadow:0 4px 14px #7656d915}
+#semana .semana-dia .task{padding:12px;margin:9px 0;border-radius:11px}
+#semana .semana-dia .task>strong{display:block;font-size:15px;overflow-wrap:anywhere}
+#semana .semana-dia .task button{margin:8px 5px 0 0}
+#semana .semana-dia .semana-dia-vacio{margin:0;padding:13px 10px;border-radius:10px;background:#fff;color:#77738c;text-align:center;font-size:13px}
+@media(max-width:700px){#semana #planSemanal{grid-template-columns:1fr}#semana .semana-controles{display:grid;grid-template-columns:1fr 1fr}#semana .semana-controles button:nth-child(2){grid-column:1/-1;grid-row:1}#semana .semana-controles button{padding:10px 8px;font-size:13px}#semana .semana-dia{padding:13px}}
+
 </style>
 </head>
 <body>
@@ -467,13 +486,14 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <section id="semana" class="hidden">
 <div class="panel">
 <h2>🗓️ Plan semanal de estudio</h2>
-<p>Organizá tus tareas por día. Las tareas se toman de las que ya guardaste, sin duplicarlas.</p>
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+<p class="semana-intro">Tus tareas organizadas por día, usando las mismas actividades que ya guardaste.</p>
+<div class="semana-controles">
 <button type="button" class="primary" onclick="cambiarSemana(-1)">⬅️ Semana anterior</button>
 <button type="button" class="primary" onclick="irASemanaActual()">📍 Esta semana</button>
 <button type="button" class="primary" onclick="cambiarSemana(1)">Semana siguiente ➡️</button>
 </div>
-<p id="rangoSemana" style="font-weight:bold;color:#4034aa"></p>
+<p id="rangoSemana" class="semana-rango"></p>
+<div class="semana-leyenda"><span>⏳ Pendiente</span><span>✅ Completada</span><span>🔴 Urgente</span><span>🟡 Importante</span></div>
 <div id="planSemanal"></div>
 </div>
 </section>
