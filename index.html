@@ -365,6 +365,23 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 #semana .semana-dia .semana-dia-vacio{margin:0;padding:13px 10px;border-radius:10px;background:#fff;color:#77738c;text-align:center;font-size:13px}
 @media(max-width:700px){#semana #planSemanal{grid-template-columns:1fr}#semana .semana-controles{display:grid;grid-template-columns:1fr 1fr}#semana .semana-controles button:nth-child(2){grid-column:1/-1;grid-row:1}#semana .semana-controles button{padding:10px 8px;font-size:13px}#semana .semana-dia{padding:13px}}
 
+
+/* Copia de seguridad: pasos guiados y advertencias claras */
+#copias .copias-intro{margin-top:-5px;color:#59658a;max-width:780px}
+#copias .copias-aviso{margin:14px 0 18px;padding:13px 15px;border:1px solid #f1d89a;background:#fff8e7;border-radius:12px;color:#71551c;line-height:1.5}
+#copias .copias-paso{display:flex;gap:14px;align-items:flex-start;margin:13px 0;padding:17px;border:1px solid #e2dcf6;border-radius:15px;background:linear-gradient(135deg,#f7f2ff,#fff)}
+#copias .copias-icono{flex:0 0 42px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#e9e0ff;font-size:22px}
+#copias .copias-contenido{flex:1;min-width:0}
+#copias .copias-contenido h3{margin:0 0 6px;color:#4933a3;font-size:17px}
+#copias .copias-contenido p{margin:0 0 12px;color:#5d5b77}
+#copias .copias-contenido label{display:block;font-weight:700;margin:12px 0 6px}
+#copias #archivoCopia{display:block;width:100%;max-width:100%;padding:11px;background:#fff;border:1px solid #d8d1e9;border-radius:10px}
+#copias .copias-contenido small{display:block;margin-top:9px;color:#756d80;line-height:1.5}
+#copias .copias-recuperar{background:linear-gradient(135deg,#f0f7ff,#fff);border-color:#d9e7fb}
+#copias .copias-recuperar .copias-icono{background:#dcecff}
+#copias .copias-recuperar .copias-contenido h3{color:#315d9c}
+@media(max-width:520px){#copias .copias-paso{padding:13px;gap:10px}#copias .copias-icono{flex-basis:34px;width:34px;height:34px;font-size:19px}#copias .copias-contenido .primary{width:100%}}
+
 </style>
 </head>
 <body>
@@ -513,11 +530,14 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <section id="copias" class="hidden">
 <div class="panel">
 <h2>🛟 Copia de seguridad</h2>
-<p>Guardá tus tareas y materias en un archivo para poder recuperarlas más adelante o pasarlas a otro dispositivo. <strong>Importante:</strong> esta copia JSON no incluye los archivos adjuntos; estos quedan guardados en este navegador.</p>
-<button class="primary" type="button" onclick="exportarCopia()">⬇️ Descargar copia de seguridad</button>
-<label for="archivoCopia" style="display:block;margin-top:16px;font-weight:bold">Recuperar una copia guardada</label>
-<input id="archivoCopia" type="file" accept=".json,application/json">
-<small style="display:block;color:#666">Al recuperar una copia, las tareas y materias actuales se reemplazarán por las del archivo elegido.</small>
+<p class="copias-intro">Protegé tus actividades guardando una copia en tu computadora. Si cambiás de navegador o dispositivo, podés recuperar tus tareas y materias desde ese archivo.</p>
+<div class="copias-aviso"><strong>Importante:</strong> la copia incluye tareas y materias, pero no los archivos adjuntos. Los adjuntos siguen guardados en el navegador donde los agregaste.</div>
+<div class="copias-paso">
+<div class="copias-icono">⬇️</div><div class="copias-contenido"><h3>1. Guardar una copia</h3><p>Descargá un archivo de respaldo y conserválo en un lugar seguro.</p><button class="primary" type="button" onclick="exportarCopia()">⬇️ Descargar copia de seguridad</button></div>
+</div>
+<div class="copias-paso copias-recuperar">
+<div class="copias-icono">📂</div><div class="copias-contenido"><h3>2. Recuperar una copia</h3><p>Elegí un archivo JSON que hayas descargado previamente desde esta aplicación.</p><label for="archivoCopia">Seleccionar archivo de copia</label><input id="archivoCopia" type="file" accept=".json,application/json"><small>Antes de recuperar, se te pedirá confirmar la operación. Las tareas y materias actuales serán reemplazadas por las del archivo.</small></div>
+</div>
 </div>
 </section>
 </main>
