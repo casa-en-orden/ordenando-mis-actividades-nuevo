@@ -800,6 +800,7 @@ function guardarMateriaNueva(nombre){
     localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));
   }
   actualizarOpcionesMaterias();
+  actualizarMateriasFiltro();
 }
 $("agregarMateriaPagina")?.addEventListener("click",()=>{
   const campo=$("nuevaMateriaPagina"),mensaje=$("mensajeMateriaPagina");
@@ -822,6 +823,7 @@ function borrarMateria(nombre){
   try{localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));localStorage.setItem(claveMateriasOcultas,JSON.stringify(materiasOcultas));}
   catch(e){alert("No se pudo guardar el cambio en este navegador. Probá recargar la página.");return;}
   actualizarOpcionesMaterias();
+  actualizarMateriasFiltro();
 }
 function editarMateria(nombre){
   const anterior=String(nombre||"").trim();
@@ -845,6 +847,7 @@ function editarMateria(nombre){
   try{localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));localStorage.setItem(claveMateriasOcultas,JSON.stringify(materiasOcultas));localStorage.setItem(clave,JSON.stringify(tareas));}
   catch(e){alert("No se pudo guardar el cambio en este navegador. Probá recargar la página.");return;}
   actualizarOpcionesMaterias();
+  actualizarMateriasFiltro();
   actualizar();
   renderizarLista(true);
 }
@@ -1232,6 +1235,8 @@ function actualizarMateriasFiltro(){
   const materias=materiasDisponibles();
   selector.innerHTML='<option value="">Todas las materias</option>'+materias.map(m=>'<option value="'+escapar(m)+'">'+escapar(m)+'</option>').join("");
   if(materias.includes(elegida))selector.value=elegida;
+  else selector.value="";
+
 }
 ["buscarTareas","filtroMateria","filtroPrioridad","filtroEstado"].forEach(id=>{
   const control=$(id);
