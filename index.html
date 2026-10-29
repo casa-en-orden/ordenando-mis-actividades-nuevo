@@ -633,8 +633,11 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 </div>
 <div class="panel">
 <h2>✏️ Tus materias</h2>
-<p>Elegí editar para corregir el nombre o borrar para quitar la materia de las opciones. Las tareas guardadas no se eliminan.</p>
-<div id="administrarMateriasPagina"></div>
+<p>La lista queda guardada dentro de este botón para ocupar menos espacio. Abrilo cuando quieras editar o eliminar una materia.</p>
+<details id="listaMateriasDesplegable">
+<summary style="cursor:pointer;display:inline-block;padding:11px 15px;border-radius:11px;background:#eee8ff;color:#4933a3;font-weight:800;border:1px solid #dcd0ff">📚 Ver lista de materias</summary>
+<div id="administrarMateriasPagina" style="margin-top:12px"></div>
+</details>
 </div>
 <div class="panel">
 <h2>📝 ¿Querés agregar una tarea?</h2>
