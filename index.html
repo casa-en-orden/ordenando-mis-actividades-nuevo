@@ -403,6 +403,19 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .progreso-ayuda{font-size:13px;color:#687187;margin:6px 0}
 @media(max-width:460px){.progreso-grid{gap:8px}.progreso-metrica{padding:12px}.progreso-metrica strong{font-size:25px}}
 
+/* Lista de pasos para dividir una tarea grande */
+.pasos-tarea{margin-top:12px;padding:12px;border:1px solid #d8e9df;border-radius:12px;background:#f4fbf6}
+.pasos-tarea h4{margin:0 0 8px;color:#216c43}
+.pasos-form{display:flex;gap:8px;align-items:center}
+.pasos-form input{flex:1;min-width:0;margin:0;background:#fff}
+.pasos-form button,.paso-item button{border:1px solid #cfe3d5;border-radius:8px;padding:8px 10px;background:#fff;color:#216c43;cursor:pointer}
+.pasos-lista{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:7px}
+.paso-item{display:flex;gap:8px;align-items:center;padding:8px 9px;border-radius:9px;background:#fff}
+.paso-item input{margin:0}
+.paso-item span{flex:1;overflow-wrap:anywhere}
+.paso-item.hecho span{text-decoration:line-through;color:#7a8b80}
+.pasos-progreso{font-size:12px;color:#52725c;margin:8px 0 0}
+@media(max-width:480px){.pasos-form{align-items:stretch;flex-direction:column}.pasos-form button{width:100%}}
 /* Mi tarea principal del día */
 .mi-tarea-principal{margin:16px 0 20px;padding:16px;border:1.5px solid #cfc1ff;border-radius:15px;background:linear-gradient(135deg,#f4efff,#fff)}
 .mi-tarea-principal h3{margin:0 0 6px;color:#49359b}
@@ -978,6 +991,35 @@ function quitarTareaPrincipalDia(){
   try{localStorage.removeItem(claveTareaPrincipalDia);}catch(e){}
   renderizarTareasHoy();
 }
+const clavePasosTareas="ordenando-pasos-tareas-v1";
+function leerPasosTarea(id){
+  try{const todos=JSON.parse(localStorage.getItem(clavePasosTareas)||"{}");return Array.isArray(todos[String(id)])?todos[String(id)]:[];}catch(e){return [];}
+}
+function guardarPasosTarea(id,pasos){
+  try{const todos=JSON.parse(localStorage.getItem(clavePasosTareas)||"{}");todos[String(id)]=pasos;localStorage.setItem(clavePasosTareas,JSON.stringify(todos));return true;}catch(e){alert("No se pudieron guardar los pasos en este navegador.");return false;}
+}
+function agregarPasoTarea(id){
+  const campo=$("nuevoPasoTarea");
+  const texto=campo?campo.value.trim():"";
+  if(!texto){alert("Escribí un paso antes de agregarlo.");return;}
+  const pasos=leerPasosTarea(id);
+  pasos.push({id:(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)),texto:texto,hecho:false});
+  if(guardarPasosTarea(id,pasos))renderizarTareasHoy();
+}
+function cambiarEstadoPasoTarea(id,pasoId,hecho){
+  const pasos=leerPasosTarea(id).map(p=>String(p.id)===String(pasoId)?{...p,hecho:!!hecho}:p);
+  if(guardarPasosTarea(id,pasos))renderizarTareasHoy();
+}
+function eliminarPasoTarea(id,pasoId){
+  const pasos=leerPasosTarea(id).filter(p=>String(p.id)!==String(pasoId));
+  if(guardarPasosTarea(id,pasos))renderizarTareasHoy();
+}
+function renderBloquePasosTarea(t){
+  const pasos=leerPasosTarea(t.id);
+  const hechas=pasos.filter(p=>p.hecho).length;
+  return '<div class="pasos-tarea"><h4>🪜 Dividí esta tarea en pasos</h4><p class="hoy-bloque-ayuda">Agregá acciones pequeñas y marcá cada una al terminarla.</p><form class="pasos-form" onsubmit="event.preventDefault();agregarPasoTarea(\''+escapar(String(t.id))+'\')"><input id="nuevoPasoTarea" maxlength="180" placeholder="Ej.: leer las primeras 5 páginas" aria-label="Nuevo paso de la tarea"><button type="submit">➕ Agregar paso</button></form>'+
+    (pasos.length?'<ul class="pasos-lista">'+pasos.map(p=>'<li class="paso-item '+(p.hecho?'hecho':'')+'"><input type="checkbox" '+(p.hecho?'checked':'')+' aria-label="Marcar paso" onchange="cambiarEstadoPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\',this.checked)"><span>'+escapar(p.texto)+'</span><button type="button" aria-label="Eliminar paso" onclick="eliminarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✕</button></li>').join("")+'</ul><p class="pasos-progreso">'+hechas+' de '+pasos.length+' pasos completados</p>':'<p class="pasos-progreso">Todavía no agregaste pasos.</p>')+'</div>';
+}
 function renderizarTareasHoy(){
   const zona=$("contenidoTareasHoy");
   const fechaZona=$("fechaPanelHoy");
@@ -1003,7 +1045,7 @@ function renderizarTareasHoy(){
   html+='<div class="mi-tarea-principal"><h3>🎯 Mi tarea principal</h3><p>Elegí una tarea para tener claro por dónde empezar. Esto no cambia su fecha ni su prioridad.</p>';
   if(opcionesPrincipal.length){
     html+='<div class="mi-tarea-principal-controles"><select id="selectorTareaPrincipalDia" aria-label="Elegir mi tarea principal"><option value="">Elegí una tarea pendiente…</option>'+opcionesPrincipal.map(t=>'<option value="'+escapar(String(t.id))+'" '+(String(t.id)===principalId?'selected':'')+'>'+escapar(t.titulo)+' · '+(fechaDe(t)<hoy?'Atrasada':fechaDe(t)===hoy?'Hoy':fechaTexto(fechaDe(t)))+'</option>').join("")+'</select><button type="button" class="primary" onclick="elegirTareaPrincipalDia()">⭐ Marcar como principal</button></div>';
-    if(principal)html+='<div class="mi-tarea-principal-actual"><strong>⭐ Tu prioridad elegida</strong>'+tarjeta(principal)+'<button type="button" onclick="quitarTareaPrincipalDia()">Quitar como principal</button></div>';
+    if(principal)html+='<div class="mi-tarea-principal-actual"><strong>⭐ Tu prioridad elegida</strong>'+tarjeta(principal)+'<button type="button" onclick="quitarTareaPrincipalDia()">Quitar como principal</button>'+renderBloquePasosTarea(principal)+'</div>';
   }else{
     html+='<p>🎉 No tenés tareas pendientes. Cuando agregues una, vas a poder elegirla acá.</p>';
   }
