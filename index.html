@@ -434,6 +434,9 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .paso-item .paso-acciones button{min-width:32px;min-height:32px;padding:6px}
 .paso-item.hecho>span:not(.paso-acciones){text-decoration:line-through;color:#7a8b80}
 .pasos-progreso{font-size:12px;color:#52725c;margin:8px 0 0}
+.pasos-felicitacion{display:flex;align-items:flex-start;gap:10px;margin:12px 0 0;padding:12px 14px;border:1px solid #bfe4c8;border-radius:12px;background:#effaf1;color:#24663a;font-weight:700;line-height:1.45}
+.pasos-felicitacion-icono{font-size:25px;line-height:1;flex:0 0 auto}
+.pasos-felicitacion small{display:block;margin-top:3px;font-weight:400;color:#3e7050}
 @media(max-width:480px){.pasos-form{align-items:stretch;flex-direction:column}.pasos-form button{width:100%}}
 /* Mi tarea principal del día */
 .mi-tarea-principal{margin:16px 0 20px;padding:16px;border:1.5px solid #cfc1ff;border-radius:15px;background:linear-gradient(135deg,#f4efff,#fff)}
@@ -1109,7 +1112,7 @@ function renderBloquePasosTarea(t){
   }
   const hechas=pasos.filter(p=>p.hecho).length;
   return '<div class="pasos-tarea"><h4>🪜 Dividí esta tarea en pasos</h4><p class="hoy-bloque-ayuda">Estos ejemplos se pueden editar, completar o eliminar. También podés agregar todos los pasos que necesites.</p><form class="pasos-form" onsubmit="event.preventDefault();agregarPasoTarea(\''+escapar(String(t.id))+'\')"><input id="nuevoPasoTarea" maxlength="180" placeholder="Escribí otro paso…" aria-label="Nuevo paso de la tarea"><button type="submit">➕ Agregar paso</button></form>'+
-    '<ul class="pasos-lista">'+pasos.map(p=>'<li class="paso-item '+(p.hecho?'hecho':'')+'"><input type="checkbox" '+(p.hecho?'checked':'')+' aria-label="Marcar paso" onchange="cambiarEstadoPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\',this.checked)"><span>'+escapar(p.texto)+'</span><span class="paso-acciones"><button type="button" class="paso-editar" onclick="editarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✏️</button><button type="button" aria-label="Eliminar paso" onclick="eliminarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✕</button></span></li>').join("")+'</ul><p class="pasos-progreso">'+hechas+' de '+pasos.length+' pasos completados</p></div>';
+    '<ul class="pasos-lista">'+pasos.map(p=>'<li class="paso-item '+(p.hecho?'hecho':'')+'"><input type="checkbox" '+(p.hecho?'checked':'')+' aria-label="Marcar paso" onchange="cambiarEstadoPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\',this.checked)"><span>'+escapar(p.texto)+'</span><span class="paso-acciones"><button type="button" class="paso-editar" onclick="editarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✏️</button><button type="button" aria-label="Eliminar paso" onclick="eliminarPasoTarea(\''+escapar(String(t.id))+'\',\''+escapar(String(p.id))+'\')">✕</button></span></li>').join("")+'</ul><p class="pasos-progreso">'+hechas+' de '+pasos.length+' pasos completados</p>'+(pasos.length>0&&hechas===pasos.length?'<div class="pasos-felicitacion" role="status"><span class="pasos-felicitacion-icono">🎉</span><span>¡Excelente trabajo!<small>Completaste todos los pasos de esta tarea. ¡Un avance más!</small></span></div>':'')+'</div>';
 }
 function renderizarTareasHoy(){
   const zona=$("contenidoTareasHoy");
