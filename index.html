@@ -418,6 +418,14 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .resumen-materia button{grid-column:1/-1;justify-self:start}
 .resumen-materias-vacio{padding:12px;border-radius:12px;background:#f8f7ff;color:#626078}
 
+/* Pestañas internas de Inicio */
+.inicio-pestanas{margin:18px 0 14px;padding:7px;display:flex;gap:7px;flex-wrap:wrap;background:#f4f0ff;border:1px solid #e4dcfa;border-radius:15px}
+.inicio-pestanas button{flex:1 1 130px;min-height:42px;border:1px solid transparent;border-radius:10px;padding:10px 13px;background:transparent;color:#574b7d;font:inherit;font-weight:700;cursor:pointer;transition:background .15s,box-shadow .15s}
+.inicio-pestanas button:hover{background:#fff}
+.inicio-pestanas button.active{background:#fff;color:#4034aa;border-color:#d9cff7;box-shadow:0 2px 7px #4034aa14}
+.inicio-panel-pestana[hidden]{display:none!important}
+@media(max-width:480px){.inicio-pestanas{gap:5px;padding:5px}.inicio-pestanas button{flex:1 1 calc(50% - 5px);padding:9px 5px;font-size:14px}}
+
 </style>
 </head>
 <body>
@@ -441,6 +449,13 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <main id="contenido" tabindex="-1">
 <section id="inicio">
 <div id="avisos"></div>
+<div class="inicio-pestanas" id="pestanasInicio" role="tablist" aria-label="Secciones de Inicio">
+<button type="button" role="tab" id="tabInicioResumen" aria-controls="inicioResumen" aria-selected="true" class="active" data-pestana-inicio="inicioResumen">🏠 Resumen</button>
+<button type="button" role="tab" id="tabInicioDia" aria-controls="inicioDia" aria-selected="false" data-pestana-inicio="inicioDia">🎯 Mi día</button>
+<button type="button" role="tab" id="tabInicioProgreso" aria-controls="inicioProgreso" aria-selected="false" data-pestana-inicio="inicioProgreso">🌱 Mi progreso</button>
+<button type="button" role="tab" id="tabInicioMaterias" aria-controls="inicioMaterias" aria-selected="false" data-pestana-inicio="inicioMaterias">📚 Materias</button>
+</div>
+<div class="inicio-panel-pestana" id="inicioResumen" role="tabpanel" aria-labelledby="tabInicioResumen"> 
 <div class="inicio-resumen">
 <div class="panel inicio-bienvenida">
 <h2>¡Hola! 👋</h2>
@@ -456,6 +471,8 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <p class="inicio-ayuda-estadisticas">Revisá qué está pendiente, qué vence hoy y qué necesita atención.</p>
 </div>
 </div>
+</div>
+<div class="inicio-panel-pestana" id="inicioProgreso" role="tabpanel" aria-labelledby="tabInicioProgreso" hidden>
 <div class="panel panel-progreso" id="panelProgreso">
 <h2>🌱 Mi progreso</h2>
 <p>Un vistazo a lo que vas logrando hoy y durante esta semana.</p>
@@ -472,16 +489,21 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 </div>
 <p class="progreso-ayuda">El avance semanal se calcula con las tareas cuya fecha corresponde a esta semana. Las tareas completadas antes de esta mejora no tienen fecha de finalización registrada y no cuentan en el indicador diario.</p>
 </div>
+</div>
+<div class="inicio-panel-pestana" id="inicioMaterias" role="tabpanel" aria-labelledby="tabInicioMaterias" hidden>
 <div class="panel" id="panelResumenMaterias">
 <h2>📚 Resumen por materia</h2>
 <p>Revisá tus pendientes, lo que ya completaste y las tareas atrasadas de cada materia.</p>
 <div id="resumenMateriasLista" class="resumen-materias-lista" aria-live="polite"></div>
 </div>
+</div>
+<div class="inicio-panel-pestana" id="inicioDia" role="tabpanel" aria-labelledby="tabInicioDia" hidden>
 <div class="panel panel-tareas-hoy" id="panelTareasHoy">
 <h2>🎯 Tu día de hoy</h2>
 <p id="fechaPanelHoy" class="fecha-panel-hoy"></p>
 <div id="contenidoTareasHoy" aria-live="polite"></div>
 <button type="button" class="primary" onclick="mostrar('guardadas')">📋 Ver todas mis tareas</button>
+</div>
 </div>
 <div class="panel accesos-rapidos">
 <h2>✨ ¿Qué querés hacer hoy?</h2>
@@ -927,6 +949,25 @@ $("limpiarFiltros")?.addEventListener("click",()=>{
   $("lista").classList.add("hidden");
   $("ayudaLista").classList.remove("hidden");
   renderizarLista();
+});
+function activarPestanaInicio(nombre){
+  const permitidas=["inicioResumen","inicioDia","inicioProgreso","inicioMaterias"];
+  if(!permitidas.includes(nombre))nombre="inicioResumen";
+  permitidas.forEach(id=>{
+    const panel=$(id),boton=document.querySelector('[data-pestana-inicio="'+id+'"]');
+    if(panel)panel.hidden=id!==nombre;
+    if(boton){const activa=id===nombre;boton.classList.toggle("active",activa);boton.setAttribute("aria-selected",String(activa));boton.tabIndex=activa?0:-1;}
+  });
+}
+document.querySelectorAll("[data-pestana-inicio]").forEach(boton=>{
+  boton.addEventListener("click",()=>activarPestanaInicio(boton.getAttribute("data-pestana-inicio")));
+  boton.addEventListener("keydown",e=>{
+    if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;
+    e.preventDefault();
+    const botones=Array.from(document.querySelectorAll("[data-pestana-inicio]"));
+    const indice=botones.indexOf(boton),siguiente=(indice+(e.key==="ArrowRight"?1:-1)+botones.length)%botones.length;
+    botones[siguiente].focus();botones[siguiente].click();
+  });
 });
 function mostrar(tab){
 document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
