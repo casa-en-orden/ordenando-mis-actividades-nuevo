@@ -426,9 +426,13 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .pasos-form button,.paso-item button{border:1px solid #cfe3d5;border-radius:8px;padding:8px 10px;background:#fff;color:#216c43;cursor:pointer}
 .pasos-lista{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:7px}
 .paso-item{display:flex;gap:8px;align-items:center;padding:8px 9px;border-radius:9px;background:#fff}
-.paso-item input{margin:0}
-.paso-item span{flex:1;overflow-wrap:anywhere}
-.paso-item.hecho span{text-decoration:line-through;color:#7a8b80}
+.paso-item input{margin:0;flex:0 0 17px;width:17px;height:17px}
+.pasos-lista{list-style:none!important;padding:0!important;margin:12px 0 0!important;display:flex!important;flex-direction:column!important;gap:9px}
+.paso-item{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;gap:10px!important;width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #e0e8e2;border-radius:10px;background:#fff}
+.paso-item>span:not(.paso-acciones){display:block!important;flex:1 1 auto!important;min-width:0;white-space:normal;overflow-wrap:break-word;word-break:normal;writing-mode:horizontal-tb!important;line-height:1.4}
+.paso-item .paso-acciones{display:flex!important;flex-direction:row!important;flex:0 0 auto;gap:6px;align-items:center}
+.paso-item .paso-acciones button{min-width:32px;min-height:32px;padding:6px}
+.paso-item.hecho>span:not(.paso-acciones){text-decoration:line-through;color:#7a8b80}
 .pasos-progreso{font-size:12px;color:#52725c;margin:8px 0 0}
 @media(max-width:480px){.pasos-form{align-items:stretch;flex-direction:column}.pasos-form button{width:100%}}
 /* Mi tarea principal del día */
