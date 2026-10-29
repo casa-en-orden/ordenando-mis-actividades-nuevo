@@ -449,6 +449,28 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <main id="contenido" tabindex="-1">
 <section id="inicio">
 <div id="avisos"></div>
+<div class="panel accesos-rapidos">
+<h2>✨ ¿Qué querés hacer hoy?</h2>
+<p class="ayuda-accesos">Elegí una opción para empezar. No hace falta completar todo.</p>
+<div class="rejilla-accesos">
+<button type="button" class="acceso acceso-nuevo" onclick="mostrar('tareas')"><span class="acceso-icono">➕</span><span class="acceso-titulo">Agregar una tarea</span><span class="acceso-descripcion">Anotá algo que tenés que hacer.</span></button>
+<button type="button" class="acceso acceso-lista" onclick="mostrar('guardadas')"><span class="acceso-icono">📋</span><span class="acceso-titulo">Ver mis tareas</span><span class="acceso-descripcion">Buscá, revisá o completá actividades.</span></button>
+<button type="button" class="acceso acceso-semana" onclick="mostrar('semana')"><span class="acceso-icono">🗓️</span><span class="acceso-titulo">Organizar mi semana</span><span class="acceso-descripcion">Mirá qué tenés para cada día.</span></button>
+<button type="button" class="acceso acceso-calendario" onclick="mostrar('calendario')"><span class="acceso-icono">📅</span><span class="acceso-titulo">Abrir calendario</span><span class="acceso-descripcion">Encontrá las tareas por fecha.</span></button>
+</div>
+</div>
+</section>
+<section id="tareas" class="hidden">
+<div class="panel">
+<h2 id="tituloFormulario">➕ Agregar una tarea</h2>
+<form id="formulario">
+<label for="titulo">¿Qué tenés que hacer?</label>
+<input id="titulo" required maxlength="120" placeholder="Ej.: estudiar para Matemática">
+<label for="materia">Materia o actividad</label>
+<input id="materia" list="opcionesMaterias" placeholder="Elegí una o escribí una nueva" autocomplete="off">
+<datalist id="opcionesMaterias"></datalist>
+<small style="display:block;margin-top:-8px;margin-bottom:12px;color:#666">Podés elegir una materia de la lista o escribir otra; quedará guardada para la próxima.</small>
+<div id="administrarMaterias" style="margin-bottom:14px"></div>
 <div class="inicio-pestanas" id="pestanasInicio" role="tablist" aria-label="Secciones de Inicio">
 <button type="button" role="tab" id="tabInicioResumen" aria-controls="inicioResumen" aria-selected="true" class="active" data-pestana-inicio="inicioResumen">🏠 Resumen</button>
 <button type="button" role="tab" id="tabInicioDia" aria-controls="inicioDia" aria-selected="false" data-pestana-inicio="inicioDia">🎯 Mi día</button>
@@ -505,28 +527,7 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <button type="button" class="primary" onclick="mostrar('guardadas')">📋 Ver todas mis tareas</button>
 </div>
 </div>
-<div class="panel accesos-rapidos">
-<h2>✨ ¿Qué querés hacer hoy?</h2>
-<p class="ayuda-accesos">Elegí una opción para empezar. No hace falta completar todo.</p>
-<div class="rejilla-accesos">
-<button type="button" class="acceso acceso-nuevo" onclick="mostrar('tareas')"><span class="acceso-icono">➕</span><span class="acceso-titulo">Agregar una tarea</span><span class="acceso-descripcion">Anotá algo que tenés que hacer.</span></button>
-<button type="button" class="acceso acceso-lista" onclick="mostrar('guardadas')"><span class="acceso-icono">📋</span><span class="acceso-titulo">Ver mis tareas</span><span class="acceso-descripcion">Buscá, revisá o completá actividades.</span></button>
-<button type="button" class="acceso acceso-semana" onclick="mostrar('semana')"><span class="acceso-icono">🗓️</span><span class="acceso-titulo">Organizar mi semana</span><span class="acceso-descripcion">Mirá qué tenés para cada día.</span></button>
-<button type="button" class="acceso acceso-calendario" onclick="mostrar('calendario')"><span class="acceso-icono">📅</span><span class="acceso-titulo">Abrir calendario</span><span class="acceso-descripcion">Encontrá las tareas por fecha.</span></button>
-</div>
-</div>
-</section>
-<section id="tareas" class="hidden">
-<div class="panel">
-<h2 id="tituloFormulario">➕ Agregar una tarea</h2>
-<form id="formulario">
-<label for="titulo">¿Qué tenés que hacer?</label>
-<input id="titulo" required maxlength="120" placeholder="Ej.: estudiar para Matemática">
-<label for="materia">Materia o actividad</label>
-<input id="materia" list="opcionesMaterias" placeholder="Elegí una o escribí una nueva" autocomplete="off">
-<datalist id="opcionesMaterias"></datalist>
-<small style="display:block;margin-top:-8px;margin-bottom:12px;color:#666">Podés elegir una materia de la lista o escribir otra; quedará guardada para la próxima.</small>
-<div id="administrarMaterias" style="margin-bottom:14px"></div>
+
 <label for="fecha">Fecha de entrega</label>
 <input id="fecha" type="date" required>
 <label for="prioridad">Prioridad</label>
