@@ -221,6 +221,64 @@ footer{max-width:1200px;background:#f1edff;border:1px solid #e2d8ff;border-radiu
 @media(hover:hover){.acceso:hover{transform:translateY(-3px);box-shadow:0 8px 18px #47359c16}.panel{transition:box-shadow .15s ease}}
 @media(max-width:600px){header h1{font-size:26px}header p{font-size:15px}.inspiracion{height:155px}nav{position:relative;justify-content:flex-start}.acceso{min-height:94px}.panel{border-radius:15px}.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:110px}}
 
+
+/* Vista más compacta: menos desplazamiento vertical sin achicar la lectura */
+header{padding:17px 20px 14px}
+header p{margin-top:4px}
+.inspiracion{height:clamp(115px,14vw,165px)}
+.inspiracion-capa{padding:12px}
+.inspiracion-capa p{margin-bottom:5px;font-size:clamp(21px,3vw,31px)}
+nav{padding:7px 10px;gap:4px}
+nav button{padding:8px 10px}
+main{padding-top:14px;padding-bottom:24px}
+.panel{padding:clamp(13px,2vw,19px);margin-bottom:11px;border-radius:15px}
+h2{margin-bottom:10px}
+p{margin-top:7px;margin-bottom:9px}
+.accesos-rapidos .ayuda-accesos{margin-top:-4px;margin-bottom:9px}
+.rejilla-accesos{gap:10px}
+.acceso{min-height:94px;padding:12px;grid-template-columns:44px minmax(0,1fr);column-gap:9px}
+.acceso-icono{width:42px;height:42px;border-radius:13px;font-size:23px}
+.acceso-titulo{font-size:15px}
+.acceso-descripcion{font-size:12px;line-height:1.35;margin-top:2px}
+.estadisticas{gap:10px;padding:2px 0 6px}
+.estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:98px;padding:12px;gap:6px}
+.estadistica .estadistica-icono{font-size:23px}
+.estadistica strong{font-size:30px}
+.estadistica span{font-size:13px}
+.task{padding:9px 11px;margin:6px 0}
+.task small{margin-top:4px}
+.task p{margin:5px 0}
+.task button{margin-top:6px;padding:6px 8px}
+.semana-dia{padding:11px;margin:8px 0}
+.detalle-dia{margin-top:12px;padding:12px}
+.dia-calendario{min-height:44px;padding:5px 1px}
+footer{padding:12px 14px 17px;margin-bottom:12px}
+@media(max-width:600px){
+ header{padding:15px 13px 12px}
+ header h1{font-size:23px}
+ header p{font-size:14px}
+ .inspiracion{height:125px}
+ .inspiracion-capa p{font-size:20px}
+ .inspiracion-capa span{font-size:11px}
+ nav{padding:6px;gap:4px}
+ nav button{padding:7px 9px;font-size:12px}
+ main{padding:10px 9px 18px}
+ .panel{padding:12px;margin-bottom:9px}
+ h2{font-size:20px;margin-bottom:8px}
+ .rejilla-accesos{gap:8px}
+ .acceso{min-height:76px;padding:10px;grid-template-columns:38px minmax(0,1fr);column-gap:8px}
+ .acceso-icono{width:36px;height:36px;font-size:21px;border-radius:11px}
+ .acceso-titulo{font-size:14px}
+ .acceso-descripcion{font-size:11px}
+ .estadisticas{gap:8px}
+ .estadistica,.estadistica.hoy,.estadistica.atrasadas,.estadistica.urgentes{min-height:88px;padding:10px}
+ .estadistica strong{font-size:27px}
+ .estadistica span{font-size:12px}
+ .task{padding:8px 9px;margin:5px 0}
+ .semana-dia{padding:10px;margin:7px 0}
+ .dia-calendario{min-height:39px}
+}
+
 </style>
 </head>
 <body>
