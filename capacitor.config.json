@@ -1,7 +1,7 @@
 {
   "appId": "ar.ordenandomisactividades.app",
   "appName": "Ordenando mis actividades",
-  "webDir": ".",
+  "webDir": "www",
   "bundledWebRuntime": false,
   "android": {
     "backgroundColor": "#f5faff"
