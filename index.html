@@ -440,11 +440,10 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 </section>
 <nav aria-label="Navegación principal">
 <button class="active" data-tab="inicio">🏠 Inicio</button>
-<button data-tab="tareas">➕ Agregar tarea</button>
-<button data-tab="guardadas">📋 Lista de tareas</button>
-<button data-tab="semana">🗓️ Plan semanal</button>
-<button data-tab="calendario">📅 Calendario</button>
-<button data-tab="copias">🛟 Copia de seguridad</button>
+<button data-tab="guardadas">➕ Tareas</button>
+<button data-tab="organizacion">🗓️ Organización</button>
+<button data-tab="materias">📚 Materias</button>
+<button data-tab="copias">💾 Copia de seguridad</button>
 </nav>
 <main id="contenido" tabindex="-1">
 <section id="inicio">
@@ -611,6 +610,23 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <div class="calendario-leyenda"><span><i class="punto-leyenda normal"></i>Normal</span><span><i class="punto-leyenda importante"></i>Importante</span><span><i class="punto-leyenda urgente"></i>Urgente</span><span><i class="punto-leyenda elegido"></i>Día elegido</span></div>
 <div id="calendarioColores"></div>
 <div id="dia" aria-live="polite"></div>
+</div>
+</section>
+<section id="organizacion" class="hidden">
+<div class="panel accesos-rapidos">
+<h2>🗓️ Organización</h2>
+<p class="ayuda-accesos">Elegí cómo querés organizar tus actividades.</p>
+<div class="rejilla-accesos">
+<button type="button" class="acceso acceso-semana" onclick="mostrar('semana')"><span class="acceso-icono">🗓️</span><span class="acceso-titulo">Plan semanal</span><span class="acceso-descripcion">Revisá tus tareas distribuidas por día.</span></button>
+<button type="button" class="acceso acceso-calendario" onclick="mostrar('calendario')"><span class="acceso-icono">📅</span><span class="acceso-titulo">Calendario</span><span class="acceso-descripcion">Consultá tus tareas por fecha y mes.</span></button>
+</div>
+</div>
+</section>
+<section id="materias" class="hidden">
+<div class="panel">
+<h2>📚 Materias</h2>
+<p>Para administrar tus materias, podés usar el campo «Materia o actividad» al agregar una tarea. Las materias que ya usás aparecen ahí para que puedas corregirlas o administrarlas.</p>
+<button type="button" class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea y administrar materias</button>
 </div>
 </section>
 <section id="copias" class="hidden">
