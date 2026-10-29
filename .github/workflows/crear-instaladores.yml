@@ -1,0 +1,65 @@
+name: Crear instaladores Android y Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Generar APK Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Instalar dependencias
+        run: npm install
+      - name: Preparar proyecto Android
+        run: |
+          npx cap add android
+          npx cap sync android
+      - name: Generar APK de prueba instalable
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      - name: Publicar APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ordenando-mis-actividades-Android-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  windows:
+    name: Generar instalador Windows
+    runs-on: windows-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Instalar dependencias
+        run: npm install
+      - name: Crear instalador EXE
+        run: npm run build:windows
+      - name: Publicar EXE como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ordenando-mis-actividades-Windows-EXE
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
