@@ -286,6 +286,21 @@ nav button[data-tab="tareas"]{background:#f0eaff;color:#4d35ad;border-color:#e0d
 nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:#7656d9}
 @media(max-width:600px){nav button{padding:8px 10px;font-size:12px}}
 
+
+/* Inicio reorganizado: alertas arriba, resumen claro y accesos fáciles */
+.inicio-resumen{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);gap:17px;align-items:stretch}
+.inicio-resumen>.panel{margin-bottom:17px;min-width:0}
+.inicio-bienvenida{background:linear-gradient(145deg,#fff 0%,#fbf7ff 100%)}
+.inicio-boton-agregar{font-size:16px;padding:13px 18px!important}
+.inicio-estadisticas .estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inicio-estadisticas .estadistica,.inicio-estadisticas .estadistica.hoy,.inicio-estadisticas .estadistica.atrasadas,.inicio-estadisticas .estadistica.urgentes{min-height:105px;padding:13px}
+.inicio-estadisticas .estadistica strong{font-size:32px}
+.inicio-ayuda-estadisticas{font-size:13px;color:var(--suave);margin:8px 0 0}
+#avisos:empty{display:none}
+#avisos:not(:empty){margin-bottom:16px}
+#avisos .notice{margin-bottom:0}
+@media(max-width:760px){.inicio-resumen{grid-template-columns:1fr;gap:0}.inicio-resumen>.panel{margin-bottom:12px}.inicio-estadisticas .estadisticas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.inicio-estadisticas .estadistica,.inicio-estadisticas .estadistica.hoy,.inicio-estadisticas .estadistica.atrasadas,.inicio-estadisticas .estadistica.urgentes{min-height:95px;padding:11px}.inicio-estadisticas .estadistica strong{font-size:28px}}
 </style>
 </head>
 <body>
@@ -308,13 +323,21 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 </nav>
 <main id="contenido" tabindex="-1">
 <section id="inicio">
-<div class="panel">
+<div id="avisos"></div>
+<div class="inicio-resumen">
+<div class="panel inicio-bienvenida">
 <h2>¡Hola! 👋</h2>
 <p>Este es tu espacio para organizar el estudio, recordar entregas y avanzar paso a paso.</p>
 <p id="resumen"></p>
-<button class="primary" onclick="mostrar('tareas')">➕ Agregar una tarea</button>
+<button class="primary inicio-boton-agregar" onclick="mostrar('tareas')">➕ Agregar una tarea</button>
 <button class="primary" type="button" id="activarRecordatorios" onclick="activarRecordatorios()" style="margin-top:10px;background:#14804a">🔔 Activar recordatorios</button>
-<p style="font-size:13px;color:#666;margin-bottom:0">Los avisos del navegador funcionan si este sitio está abierto y diste permiso para enviar notificaciones.</p>
+<p class="nota-recordatorios" style="font-size:13px;color:#666;margin-bottom:0">Los avisos del navegador funcionan si este sitio está abierto y diste permiso para enviar notificaciones.</p>
+</div>
+<div class="panel inicio-estadisticas">
+<h2>📊 Tus tareas de un vistazo</h2>
+<div id="estadisticasInicio" class="estadisticas"></div>
+<p class="inicio-ayuda-estadisticas">Revisá qué está pendiente, qué vence hoy y qué necesita atención.</p>
+</div>
 </div>
 <div class="panel accesos-rapidos">
 <h2>✨ ¿Qué querés hacer hoy?</h2>
@@ -325,11 +348,6 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <button type="button" class="acceso acceso-semana" onclick="mostrar('semana')"><span class="acceso-icono">🗓️</span><span class="acceso-titulo">Organizar mi semana</span><span class="acceso-descripcion">Mirá qué tenés para cada día.</span></button>
 <button type="button" class="acceso acceso-calendario" onclick="mostrar('calendario')"><span class="acceso-icono">📅</span><span class="acceso-titulo">Abrir calendario</span><span class="acceso-descripcion">Encontrá las tareas por fecha.</span></button>
 </div>
-</div>
-<div id="avisos"></div>
-<div class="panel">
-<h2>📊 Tu día de estudio</h2>
-<div id="estadisticasInicio" class="estadisticas"></div>
 </div>
 </section>
 <section id="tareas" class="hidden">
