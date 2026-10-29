@@ -900,11 +900,17 @@ $("archivoCopia").addEventListener("change",function(e){
   lector.readAsText(archivo);
 });
 function fechaTexto(f){if(!f)return "Sin fecha";return new Date(f+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}
+const coloresMaterias=["#e8e4ff","#dff3ff","#ffe8d8","#e2f6e8","#ffe3ed","#fff2c9","#e3eaff","#e8f4d8","#f5e2ff","#d9f5f0","#ffe6dc","#e9e4da"];
+function colorMateria(nombre){
+  const texto=String(nombre||"Actividad general").toLocaleLowerCase("es");
+  let hash=0;for(let i=0;i<texto.length;i++)hash=(hash*31+texto.charCodeAt(i))>>>0;
+  return coloresMaterias[hash%coloresMaterias.length];
+}
 function tarjeta(t){
 const vencida=t.fecha<new Date().toLocaleDateString("sv-SE");
 return `<div class="task ${t.prioridad}">
 <strong>${escapar(t.titulo)}</strong>
-<small>${escapar(t.materia||"Actividad general")} · ${fechaTexto(t.fecha)}</small>
+<small><span class="etiqueta-materia" style="display:inline-block;background:${colorMateria(t.materia)};color:#303047;padding:3px 9px;border-radius:999px;font-weight:700;margin:0 4px 3px 0">${escapar(t.materia||"Actividad general")}</span> · ${fechaTexto(t.fecha)}</small>
 ${t.detalle?`<p>${escapar(t.detalle)}</p>`:""}
 ${Array.isArray(t.adjuntos)&&t.adjuntos.length?`<div style="margin-top:9px;padding:9px;background:#fff;border-radius:8px"><strong>📎 Archivos adjuntos</strong><div>${t.adjuntos.map(a=>`<button type="button" onclick="abrirAdjunto(&quot;${t.id}&quot;,&quot;${a.id}&quot;)">📄 ${escapar(a.nombre)}</button>`).join("")}</div></div>`:""}
 <small>${vencida?"⚠️ Vencida":t.prioridad==="urgente"?"🔴 Urgente":t.prioridad==="importante"?"🟡 Importante":"🟢 Normal"}</small>
