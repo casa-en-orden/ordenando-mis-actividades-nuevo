@@ -403,6 +403,12 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 .progreso-ayuda{font-size:13px;color:#687187;margin:6px 0}
 @media(max-width:460px){.progreso-grid{gap:8px}.progreso-metrica{padding:12px}.progreso-metrica strong{font-size:25px}}
 
+/* Meta diaria */
+.meta-diaria{margin-top:14px;padding:15px;border-radius:14px;background:#fff9e8;border:1px solid #f2dfaa}
+.meta-diaria-controles{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.meta-diaria input{width:90px;max-width:100%;padding:9px;border:1px solid #d8cda9;border-radius:9px;font:inherit}
+.meta-diaria-mensaje{font-weight:700;color:#72551a;margin:8px 0 0}
+
 </style>
 </head>
 <body>
@@ -447,6 +453,13 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <div class="progreso-grid">
 <div class="progreso-metrica"><span>✅ Completadas hoy</span><strong id="completadasHoy">0</strong><span id="detalleCompletadasHoy">Tareas marcadas como completadas hoy</span></div>
 <div class="progreso-metrica"><span>🗓️ Avance de la semana</span><strong id="porcentajeSemana">0%</strong><div class="progreso-barra" role="progressbar" aria-label="Avance de tareas de esta semana" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barraProgresoSemana"><div id="rellenoProgresoSemana"></div></div><span id="detalleProgresoSemana">0 de 0 tareas completadas</span></div>
+</div>
+<div class="meta-diaria">
+<h3>🎯 Mi meta diaria</h3>
+<p>Elegí cuántas tareas querés completar por día. ¡Cada paso cuenta!</p>
+<div class="meta-diaria-controles"><label for="metaDiaria">Tareas por día:</label><input id="metaDiaria" type="number" min="1" max="50" step="1" value="3" onchange="guardarMetaDiaria(this.value)"></div>
+<div class="progreso-barra" role="progressbar" aria-label="Avance de la meta diaria" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barraMetaDiaria"><div id="rellenoMetaDiaria"></div></div>
+<p class="meta-diaria-mensaje" id="mensajeMetaDiaria" aria-live="polite">¡Vos podés!</p>
 </div>
 <p class="progreso-ayuda">El avance semanal se calcula con las tareas cuya fecha corresponde a esta semana. Las tareas completadas antes de esta mejora no tienen fecha de finalización registrada y no cuentan en el indicador diario.</p>
 </div>
@@ -580,6 +593,9 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
 <footer>Tus tareas se guardan en este dispositivo. Recordá conservar una copia si cambiás de dispositivo.</footer>
 <script>
 const clave="ordenando-actividades-v1";
+const claveMetaDiaria="ordenando-meta-diaria-v1";
+let metaDiaria=3;
+try{const valor=Number(localStorage.getItem(claveMetaDiaria));if(Number.isInteger(valor)&&valor>=1&&valor<=50)metaDiaria=valor;}catch(e){}
 let tareas=[];
 try{tareas=JSON.parse(localStorage.getItem(clave)||"[]");if(!Array.isArray(tareas))tareas=[]}catch(e){tareas=[]}
 const $=id=>document.getElementById(id);
@@ -772,6 +788,13 @@ consultarDia();
 renderizarPlanSemanal();
 revisarRecordatorios();
 }
+function guardarMetaDiaria(valor){
+  const numero=Number(valor);
+  if(!Number.isInteger(numero)||numero<1||numero>50){$("metaDiaria").value=String(metaDiaria);return;}
+  metaDiaria=numero;
+  try{localStorage.setItem(claveMetaDiaria,String(metaDiaria));}catch(e){}
+  renderizarProgreso();
+}
 function renderizarProgreso(){
   const hoy=new Date().toLocaleDateString("sv-SE");
   const inicio=lunesDeSemana(hoy);
@@ -783,6 +806,11 @@ function renderizarProgreso(){
   const completadasSemana=tareasSemana.filter(t=>t.hecha).length;
   const porcentaje=tareasSemana.length?Math.round(completadasSemana/tareasSemana.length*100):0;
   const elHoy=$("completadasHoy");if(elHoy)elHoy.textContent=String(completadasHoy);
+  const campoMeta=$("metaDiaria");if(campoMeta&&campoMeta.value!==String(metaDiaria))campoMeta.value=String(metaDiaria);
+  const avanceMeta=Math.min(100,Math.round(completadasHoy/metaDiaria*100));
+  const barraMeta=$("barraMetaDiaria");if(barraMeta)barraMeta.setAttribute("aria-valuenow",String(avanceMeta));
+  const rellenoMeta=$("rellenoMetaDiaria");if(rellenoMeta)rellenoMeta.style.width=avanceMeta+"%";
+  const mensajeMeta=$("mensajeMetaDiaria");if(mensajeMeta)mensajeMeta.textContent=completadasHoy>=metaDiaria?"🎉 ¡Meta diaria cumplida! ¡Muy buen trabajo!":"Llevás "+completadasHoy+" de "+metaDiaria+" tareas. "+(metaDiaria-completadasHoy)+" para alcanzar tu meta.";
   const detalleHoy=$("detalleCompletadasHoy");if(detalleHoy)detalleHoy.textContent=completadasHoy===1?"Tarea completada hoy":"Tareas completadas hoy";
   const elPorcentaje=$("porcentajeSemana");if(elPorcentaje)elPorcentaje.textContent=porcentaje+"%";
   const detalle=$("detalleProgresoSemana");if(detalle)detalle.textContent=completadasSemana+" de "+tareasSemana.length+" tareas completadas";
