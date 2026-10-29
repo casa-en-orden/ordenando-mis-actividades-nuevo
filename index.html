@@ -548,45 +548,77 @@ let tareas=[];
 try{tareas=JSON.parse(localStorage.getItem(clave)||"[]");if(!Array.isArray(tareas))tareas=[]}catch(e){tareas=[]}
 const $=id=>document.getElementById(id);
 const claveMaterias="ordenando-materias-v1";
+const claveMateriasOcultas="ordenando-materias-ocultas-v1";
 const materiasIniciales=["Matemática","Lengua","Inglés","Historia","Geografía","Biología","Física","Química","Educación Física","Formación Ética y Ciudadana","Tecnología","Arte","Informática"];
-let materiasPersonalizadas=[];
+let materiasPersonalizadas=[],materiasOcultas=[];
 try{materiasPersonalizadas=JSON.parse(localStorage.getItem(claveMaterias)||"[]");if(!Array.isArray(materiasPersonalizadas))materiasPersonalizadas=[]}catch(e){materiasPersonalizadas=[]}
+try{materiasOcultas=JSON.parse(localStorage.getItem(claveMateriasOcultas)||"[]");if(!Array.isArray(materiasOcultas))materiasOcultas=[]}catch(e){materiasOcultas=[]}
+function materiasDisponibles(){
+  return [...new Set([...materiasIniciales.filter(m=>!materiasOcultas.some(o=>o.toLocaleLowerCase("es")===m.toLocaleLowerCase("es"))),...materiasPersonalizadas])].sort((a,b)=>a.localeCompare(b,"es"));
+}
 function actualizarOpcionesMaterias(){
-  const materias=[...new Set([...materiasIniciales,...materiasPersonalizadas])].sort((a,b)=>a.localeCompare(b,"es"));
+  const materias=materiasDisponibles();
   $("opcionesMaterias").innerHTML=materias.map(m=>`<option value="${escapar(m)}"></option>`).join("");
   const zona=$("administrarMaterias");
-  if(materiasPersonalizadas.length){
-    zona.innerHTML='<details><summary style="cursor:pointer;color:#4034aa;font-weight:bold">Administrar materias que agregué</summary><div style="margin-top:8px">'+materiasPersonalizadas.slice().sort((a,b)=>a.localeCompare(b,"es")).map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #eee"><span>${escapar(m)}</span><button type="button" data-borrar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:7px 10px;background:#ffe8e8;color:#a11;cursor:pointer">🗑 Borrar</button></div>`).join("")+'</div></details>';
-    // El borrado se gestiona con un único evento delegado en la zona.
-    // Esto evita perder el clic cuando la lista se vuelve a dibujar.
+  if(materias.length){
+    zona.innerHTML='<details><summary style="cursor:pointer;color:#4034aa;font-weight:bold">Administrar materias (editar o borrar)</summary><div style="margin-top:8px">'+materias.map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid #eee"><span>${escapar(m)}</span><div style="display:flex;gap:6px"><button type="button" data-editar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:7px 10px;background:#e8eaff;color:#4034aa;cursor:pointer">✏️ Editar</button><button type="button" data-borrar-materia="${escapar(m)}" style="border:0;border-radius:7px;padding:7px 10px;background:#ffe8e8;color:#a11;cursor:pointer">🗑 Borrar</button></div></div>`).join("")+'</div><small style="display:block;margin-top:8px;color:#666">Las tareas guardadas se conservan. Al editar, también se corrige la materia en esas tareas.</small></details>';
   } else {
-    zona.innerHTML='<small style="color:#666">Todavía no agregaste materias personalizadas.</small>';
+    zona.innerHTML='<small style="color:#666">No hay materias disponibles. Podés escribir una en el campo Materia para agregarla.</small>';
   }
 }
 function guardarMateriaNueva(nombre){
   const materia=String(nombre||"").trim();
-  if(materia&&!materiasPersonalizadas.some(m=>m.toLowerCase()===materia.toLowerCase())&&!materiasIniciales.some(m=>m.toLowerCase()===materia.toLowerCase())){
+  if(!materia)return;
+  const coincidente=materiasDisponibles().find(m=>m.toLocaleLowerCase("es")===materia.toLocaleLowerCase("es"));
+  if(coincidente&&materiasOcultas.some(m=>m.toLocaleLowerCase("es")===coincidente.toLocaleLowerCase("es"))){
+    materiasOcultas=materiasOcultas.filter(m=>m.toLocaleLowerCase("es")!==coincidente.toLocaleLowerCase("es"));
+    localStorage.setItem(claveMateriasOcultas,JSON.stringify(materiasOcultas));
+  } else if(!coincidente){
     materiasPersonalizadas.push(materia);
     localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));
   }
   actualizarOpcionesMaterias();
 }
-function borrarMateriaPersonalizada(nombre){
+function borrarMateria(nombre){
   const materia=String(nombre||"").trim();
-  if(!materia)return;
-  const existe=materiasPersonalizadas.some(m=>String(m).toLowerCase()===materia.toLowerCase());
-  if(!existe)return;
-  if(!confirm('¿Querés borrar "'+materia+'" de la lista de materias? Las tareas ya guardadas no se borrarán.'))return;
-  materiasPersonalizadas=materiasPersonalizadas.filter(m=>String(m).toLowerCase()!==materia.toLowerCase());
-  try{localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));}
+  if(!materia||!materiasDisponibles().some(m=>m.toLocaleLowerCase("es")===materia.toLocaleLowerCase("es")))return;
+  if(!confirm('¿Querés quitar "'+materia+'" de las opciones? Las tareas ya guardadas se conservarán con su materia actual.'))return;
+  materiasPersonalizadas=materiasPersonalizadas.filter(m=>m.toLocaleLowerCase("es")!==materia.toLocaleLowerCase("es"));
+  if(materiasIniciales.some(m=>m.toLocaleLowerCase("es")===materia.toLocaleLowerCase("es"))&&!materiasOcultas.some(m=>m.toLocaleLowerCase("es")===materia.toLocaleLowerCase("es")))materiasOcultas.push(materia);
+  try{localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));localStorage.setItem(claveMateriasOcultas,JSON.stringify(materiasOcultas));}
   catch(e){alert("No se pudo guardar el cambio en este navegador. Probá recargar la página.");return;}
   actualizarOpcionesMaterias();
 }
+function editarMateria(nombre){
+  const anterior=String(nombre||"").trim();
+  if(!anterior)return;
+  const nuevo=prompt('Corregí el nombre de la materia:',anterior);
+  if(nuevo===null)return;
+  const corregido=nuevo.trim();
+  if(!corregido){alert("El nombre de la materia no puede quedar vacío.");return;}
+  if(materiasDisponibles().some(m=>m.toLocaleLowerCase("es")===corregido.toLocaleLowerCase("es")&&m.toLocaleLowerCase("es")!==anterior.toLocaleLowerCase("es"))){alert("Ya existe una materia con ese nombre.");return;}
+  if(corregido===anterior)return;
+  if(!confirm('¿Cambiar "'+anterior+'" por "'+corregido+'" también en las tareas guardadas?'))return;
+  materiasPersonalizadas=materiasPersonalizadas.filter(m=>m.toLocaleLowerCase("es")!==anterior.toLocaleLowerCase("es"));
+  materiasOcultas=materiasOcultas.filter(m=>m.toLocaleLowerCase("es")!==anterior.toLocaleLowerCase("es"));
+  if(materiasIniciales.some(m=>m.toLocaleLowerCase("es")===corregido.toLocaleLowerCase("es"))){
+    materiasPersonalizadas=materiasPersonalizadas.filter(m=>m.toLocaleLowerCase("es")!==corregido.toLocaleLowerCase("es"));
+    materiasOcultas=materiasOcultas.filter(m=>m.toLocaleLowerCase("es")!==corregido.toLocaleLowerCase("es"));
+  } else if(!materiasPersonalizadas.some(m=>m.toLocaleLowerCase("es")===corregido.toLocaleLowerCase("es"))){
+    materiasPersonalizadas.push(corregido);
+  }
+  tareas.forEach(t=>{if(String(t.materia||"").toLocaleLowerCase("es")===anterior.toLocaleLowerCase("es"))t.materia=corregido;});
+  try{localStorage.setItem(claveMaterias,JSON.stringify(materiasPersonalizadas));localStorage.setItem(claveMateriasOcultas,JSON.stringify(materiasOcultas));localStorage.setItem(clave,JSON.stringify(tareas));}
+  catch(e){alert("No se pudo guardar el cambio en este navegador. Probá recargar la página.");return;}
+  actualizarOpcionesMaterias();
+  actualizarMateriasFiltro();
+  renderizarLista(true);
+}
 $("administrarMaterias").addEventListener("click",function(e){
-  const boton=e.target.closest("[data-borrar-materia]");
-  if(!boton)return;
-  e.preventDefault();
-  borrarMateriaPersonalizada(boton.getAttribute("data-borrar-materia"));
+  const editar=e.target.closest("[data-editar-materia]");
+  if(editar){e.preventDefault();editarMateria(editar.getAttribute("data-editar-materia"));return;}
+  const borrar=e.target.closest("[data-borrar-materia]");
+  if(borrar){e.preventDefault();borrarMateria(borrar.getAttribute("data-borrar-materia"));}
 });
 let tareaEditando=null;
 function guardar(){localStorage.setItem(clave,JSON.stringify(tareas));actualizar()}
@@ -728,7 +760,7 @@ function actualizarMateriasFiltro(){
   const selector=$("filtroMateria");
   if(!selector)return;
   const elegida=selector.value;
-  const materias=[...new Set(tareas.map(t=>(t.materia||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  const materias=[...new Set(tareas.map(t=>(t.materia||"").trim()).filter(Boolean).filter(m=>materiasDisponibles().some(d=>d.toLocaleLowerCase("es")===m.toLocaleLowerCase("es"))))].sort((a,b)=>a.localeCompare(b,"es"));
   selector.innerHTML='<option value="">Todas las materias</option>'+materias.map(m=>'<option value="'+escapar(m)+'">'+escapar(m)+'</option>').join("");
   if(materias.includes(elegida))selector.value=elegida;
 }
