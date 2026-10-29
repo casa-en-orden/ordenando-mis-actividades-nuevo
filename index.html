@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#5546d8">
+<meta name="theme-color" content="#4387bd">
 <title>Ordenando mis actividades</title>
 <style>
 *{box-sizing:border-box}
@@ -526,6 +526,136 @@ nav button[data-tab="tareas"].active{background:#7656d9;color:#fff;border-color:
   .hoy-resumen-item strong{font-size:23px}
   .paso-item>span:not(.paso-acciones){font-size:14px}
   .paso-item .paso-acciones button{min-width:32px;min-height:34px;padding:5px}
+}
+
+
+/* REDISEÑO AZUL PASTEL — octubre 2026 */
+:root{
+  color-scheme:light;
+  --azul-900:#183b63;
+  --azul-800:#24527e;
+  --azul-700:#326a9e;
+  --azul-600:#4387bd;
+  --azul-500:#6ba7d5;
+  --azul-300:#b8d9f2;
+  --azul-200:#d6e9f8;
+  --azul-100:#eaf4fc;
+  --azul-50:#f5faff;
+  --tinta:#20364d;
+  --tinta-suave:#61758a;
+  --borde:#d9e8f5;
+  --superficie:#ffffff;
+  --sombra:0 12px 32px rgba(39,83,124,.09);
+}
+html{background:#f3f8fd}
+body{
+  font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--tinta);
+  background:linear-gradient(180deg,#eaf4fc 0,#f5f9fe 330px,#f5f8fc 100%);
+  line-height:1.55;
+}
+header{
+  position:relative;
+  overflow:hidden;
+  padding:28px clamp(18px,4vw,42px);
+  background:linear-gradient(125deg,#244f7b 0%,#4388bd 54%,#91c5e9 100%);
+  box-shadow:0 8px 26px rgba(36,79,123,.18);
+}
+header:after{
+  content:"";position:absolute;width:250px;height:250px;right:-65px;top:-145px;
+  border:34px solid rgba(255,255,255,.12);border-radius:50%;pointer-events:none;
+}
+header h1{position:relative;z-index:1;font-size:clamp(22px,3vw,31px);letter-spacing:.035em;line-height:1.2}
+header p{position:relative;z-index:1;color:#edf7ff;font-size:15px}
+.inspiracion{position:relative;isolation:isolate;overflow:hidden;min-height:190px;background:#d6e9f8}
+.inspiracion img{display:block;width:100%;height:clamp(190px,25vw,270px);object-fit:cover;filter:saturate(.72) brightness(.82)}
+.inspiracion-capa{
+  background:linear-gradient(90deg,rgba(17,48,79,.83),rgba(27,67,103,.48) 65%,rgba(27,67,103,.16));
+  padding:clamp(22px,5vw,42px);display:flex;flex-direction:column;justify-content:center;min-height:190px
+}
+.inspiracion-capa p{max-width:760px;font-size:clamp(21px,3.4vw,31px);line-height:1.25;font-weight:750;text-wrap:balance}
+.inspiracion-capa span{max-width:680px;color:#eaf5ff;font-size:15px}
+nav{
+  position:sticky;top:0;z-index:50;gap:8px;padding:10px clamp(10px,3vw,28px);
+  background:rgba(255,255,255,.94);backdrop-filter:blur(14px);
+  border-bottom:1px solid #dce9f5;box-shadow:0 5px 16px rgba(35,73,109,.07)
+}
+nav button{
+  flex:0 0 auto;border:1px solid transparent;border-radius:12px;padding:11px 15px;
+  background:var(--azul-100);color:var(--azul-800);font-weight:700;
+  transition:transform .18s,background .18s,box-shadow .18s
+}
+nav button:hover{background:var(--azul-200);transform:translateY(-1px)}
+nav button.active{background:var(--azul-700);color:white;box-shadow:0 5px 12px #326a9e35}
+main{max-width:1080px;padding:24px clamp(12px,3vw,28px) 42px}
+.panel{
+  background:rgba(255,255,255,.96);border:1px solid rgba(210,228,244,.95);
+  border-radius:20px;padding:clamp(16px,2.6vw,25px);margin-bottom:18px;
+  box-shadow:var(--sombra)
+}
+h2{color:var(--azul-900);font-size:clamp(20px,2.4vw,25px);letter-spacing:-.02em;margin-bottom:14px}
+h3{color:var(--azul-800)}
+p{line-height:1.6}
+button,.button, input[type=button],input[type=submit]{
+  border-radius:12px;transition:transform .16s,box-shadow .16s,background .16s
+}
+button{cursor:pointer}
+button:hover{filter:brightness(.99)}
+button:active{transform:translateY(1px)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{
+  outline:3px solid #79b7e7;outline-offset:3px
+}
+button.primary{
+  background:linear-gradient(135deg,#3679ad,#4b96cc);color:white;border:1px solid #3679ad;
+  box-shadow:0 5px 13px rgba(50,106,158,.2);font-weight:750
+}
+button.primary:hover{background:linear-gradient(135deg,#285f91,#3b82b9);box-shadow:0 7px 16px rgba(50,106,158,.25)}
+input,select,textarea{
+  border:1px solid #cbddec;border-radius:12px;background:#fbfdff;color:var(--tinta);
+  padding:12px 13px;transition:border-color .15s,box-shadow .15s
+}
+input:focus,select:focus,textarea:focus{border-color:#6ba7d5;box-shadow:0 0 0 4px rgba(107,167,213,.16);outline:none}
+label{color:#35536f;font-weight:650}
+.task,.resumen-materia,.paso-item,.hoy-resumen-item,.progreso-metrica{
+  border-color:var(--borde);border-radius:15px
+}
+.task{box-shadow:0 4px 12px rgba(38,76,112,.045)}
+.accesos-rapidos{background:linear-gradient(145deg,#fff,#f4faff)}
+.rejilla-accesos{gap:13px}
+.acceso{
+  min-height:150px!important;border:1px solid #d6e7f6!important;border-radius:17px!important;
+  background:linear-gradient(145deg,#fff,#f1f8fe)!important;color:var(--tinta)!important;
+  padding:18px!important;box-shadow:0 5px 16px rgba(41,86,129,.07);
+  text-align:left;transition:transform .18s,box-shadow .18s,border-color .18s
+}
+.acceso:hover{transform:translateY(-3px);border-color:#9fc8e8!important;box-shadow:0 12px 24px rgba(41,86,129,.12)}
+.acceso-icono{display:inline-grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#dceefb;color:#285f91;font-size:22px}
+.acceso-titulo{display:block;margin-top:12px;color:#244d75;font-size:16px;font-weight:800}
+.acceso-descripcion{display:block;margin-top:4px;color:#61758a;font-size:13px;line-height:1.45}
+.inicio-pestanas{background:#eaf4fc;border:1px solid #d4e6f5;border-radius:16px;padding:7px}
+.inicio-pestanas button{border-radius:12px;color:#42627f}
+.inicio-pestanas button.active{color:#24527e;border-color:#d2e5f5;box-shadow:0 3px 10px rgba(34,78,120,.1)}
+.estadisticas{gap:12px}
+.estadisticas>*{border-radius:15px}
+details,summary{border-radius:12px}
+summary{cursor:pointer;color:var(--azul-800);font-weight:750}
+hr{border:0;border-top:1px solid var(--borde)}
+a{color:#2e6fa6}
+.hidden,[hidden]{display:none!important}
+@media(min-width:850px){
+  .rejilla-accesos{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  header{padding:21px 15px}
+  .inspiracion-capa{padding:20px 17px}
+  nav{position:relative;gap:7px;padding:9px}
+  nav button{padding:10px 12px;font-size:13px}
+  main{padding-top:14px}
+  .panel{border-radius:16px}
+  .acceso{min-height:132px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
 
 </style>
