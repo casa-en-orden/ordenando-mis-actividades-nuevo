@@ -772,7 +772,7 @@ try{tareas=JSON.parse(localStorage.getItem(clave)||"[]");if(!Array.isArray(tarea
 const $=id=>document.getElementById(id);
 const claveMaterias="ordenando-materias-v1";
 const claveMateriasOcultas="ordenando-materias-ocultas-v1";
-const materiasIniciales=["Matemática","Lengua","Inglés","Historia","Geografía","Biología","Física","Química","Educación Física","Formación Ética y Ciudadana","Tecnología","Arte","Informática"];
+const materiasIniciales=["Matemática","Lengua","Inglés","Historia","Geografía","Biología","Física","Química","Educación Física","Formación Ética y Ciudadana","FVT","Tecnología","Arte","Informática"];
 let materiasPersonalizadas=[],materiasOcultas=[];
 try{materiasPersonalizadas=JSON.parse(localStorage.getItem(claveMaterias)||"[]");if(!Array.isArray(materiasPersonalizadas))materiasPersonalizadas=[]}catch(e){materiasPersonalizadas=[]}
 try{materiasOcultas=JSON.parse(localStorage.getItem(claveMateriasOcultas)||"[]");if(!Array.isArray(materiasOcultas))materiasOcultas=[]}catch(e){materiasOcultas=[]}
