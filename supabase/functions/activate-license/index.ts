@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
   try {
     const { licenseKey, platform, deviceId } = await req.json();
     if (typeof licenseKey !== "string" || licenseKey.trim().length < 12 ||
-        !["android", "windows"].includes(platform) ||
+        !["web", "android", "windows"].includes(platform) ||
         typeof deviceId !== "string" || deviceId.trim().length < 16 || deviceId.length > 256) {
       return json(400, { error: "Faltan datos válidos para activar la licencia." });
     }
