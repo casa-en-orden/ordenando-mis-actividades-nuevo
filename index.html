@@ -1573,6 +1573,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
 <script>
 (()=>{
  const endpoint="https://clitpwuqggioosxkokow.supabase.co/functions/v1/activate-license";
+ const publishableKey="sb_publishable_tgUfLLfgUuQQAr0BZlhzLA_lOnsi8fC";
  const claveGuardada="ordenando-licencia-web-v1";
  const dispositivoGuardado="ordenando-dispositivo-web-v1";
  const crearId=()=>{try{return crypto.randomUUID()}catch(e){return "web-"+Date.now()+"-"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
@@ -1589,7 +1590,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
  async function activar(key){
   boton.disabled=true;boton.textContent="Comprobando…";estado.textContent="Estamos verificando tu licencia.";
   try{
-   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({licenseKey:key,platform:"web",deviceId})});
+   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","apikey":publishableKey},body:JSON.stringify({licenseKey:key,platform:"web",deviceId})});
    let datos={};try{datos=await respuesta.json()}catch(e){}
    if(!respuesta.ok||datos.valid!==true){throw new Error(datos.error||"No se pudo activar la licencia. Revisá la clave e intentá nuevamente.")}
    localStorage.setItem(claveGuardada,key);
