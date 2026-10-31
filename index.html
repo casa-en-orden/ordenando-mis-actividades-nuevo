@@ -1608,9 +1608,13 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
  boton.addEventListener("click",()=>{const key=campo.value.trim();if(key.length<12){mostrarError("Ingresá una clave de licencia válida.");return}activar(key)});
  campo.addEventListener("keydown",e=>{if(e.key==="Enter")boton.click()});
  const guardada=localStorage.getItem(claveGuardada);
- if(guardada){campo.value=guardada;}
- mostrarError("Ingresá o confirmá tu clave para continuar.");
- campo.focus();
+ if(guardada){
+  campo.value=guardada;
+  activar(guardada);
+ }else{
+  mostrarError("Ingresá tu clave de licencia para continuar.");
+  campo.focus();
+ }
 })();
 </script>
 
