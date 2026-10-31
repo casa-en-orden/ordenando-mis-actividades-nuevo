@@ -1574,14 +1574,22 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
 (()=>{
  const endpoint="https://clitpwuqggioosxkokow.supabase.co/functions/v1/activate-license";
  const publishableKey="sb_publishable_tgUfLLfgUuQQAr0BZlhzLA_lOnsi8fC";
- const claveGuardada="ordenando-licencia-web-v1";
- const dispositivoGuardado="ordenando-dispositivo-web-v1";
- const crearId=()=>{try{return crypto.randomUUID()}catch(e){return "web-"+Date.now()+"-"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
+ // Detecta si la app se ejecuta en Android, Windows (Electron) o navegador.
+ let plataforma="web";
+ try{
+  const capacitor=window.Capacitor;
+  if(capacitor&&typeof capacitor.getPlatform==="function"&&capacitor.getPlatform()==="android")plataforma="android";
+  else if(/Electron/i.test(navigator.userAgent))plataforma="windows";
+ }catch(e){}
+ const sufijo=plataforma;
+ const claveGuardada="ordenando-licencia-"+sufijo+"-v1";
+ const dispositivoGuardado="ordenando-dispositivo-"+sufijo+"-v1";
+ const crearId=()=>{try{return crypto.randomUUID()}catch(e){return sufijo+"-"+Date.now()+"-"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
  let deviceId=localStorage.getItem(dispositivoGuardado);
  if(!deviceId){deviceId=crearId();localStorage.setItem(dispositivoGuardado,deviceId)}
  const capa=document.createElement("div");
  capa.id="licencia-web-capa";
- capa.innerHTML='<section id="licencia-web-caja" role="dialog" aria-modal="true" aria-labelledby="licencia-web-titulo"><h2 id="licencia-web-titulo">Activá tu licencia</h2><p>Ingresá la clave de compra para usar Ordenando mis actividades en esta versión web.</p><label for="licencia-web-clave">Clave de licencia</label><input id="licencia-web-clave" type="text" autocomplete="off" placeholder="Pegá tu clave de licencia"><button id="licencia-web-activar" type="button">Activar licencia</button><p id="licencia-web-estado" role="status" aria-live="polite">Comprobando activación…</p></section>';
+ capa.innerHTML='<section id="licencia-web-caja" role="dialog" aria-modal="true" aria-labelledby="licencia-web-titulo"><h2 id="licencia-web-titulo">Activá tu licencia</h2><p>Ingresá la clave de compra para usar Ordenando mis actividades.</p><label for="licencia-web-clave">Clave de licencia</label><input id="licencia-web-clave" type="text" autocomplete="off" placeholder="Pegá tu clave de licencia"><button id="licencia-web-activar" type="button">Activar licencia</button><p id="licencia-web-estado" role="status" aria-live="polite">Comprobando activación…</p></section>';
  document.body.appendChild(capa);
  const campo=capa.querySelector("#licencia-web-clave");
  const boton=capa.querySelector("#licencia-web-activar");
@@ -1590,7 +1598,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
  async function activar(key){
   boton.disabled=true;boton.textContent="Comprobando…";estado.textContent="Estamos verificando tu licencia.";
   try{
-   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","apikey":publishableKey},body:JSON.stringify({licenseKey:key,platform:"web",deviceId})});
+   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","apikey":publishableKey},body:JSON.stringify({licenseKey:key,platform:plataforma,deviceId})});
    let datos={};try{datos=await respuesta.json()}catch(e){}
    if(!respuesta.ok||datos.valid!==true){throw new Error(datos.error||"No se pudo activar la licencia. Revisá la clave e intentá nuevamente.")}
    localStorage.setItem(claveGuardada,key);
