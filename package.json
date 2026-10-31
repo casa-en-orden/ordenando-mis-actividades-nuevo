@@ -5,7 +5,7 @@
   "description": "Aplicación de organización de actividades para Android y Windows",
   "main": "electron-main.cjs",
   "scripts": {
-    "build:windows": "electron-builder --win nsis",
+    "build:windows": "electron-builder --win nsis --publish never",
     "build:android": "cap sync android"
   },
   "dependencies": {
@@ -32,7 +32,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
