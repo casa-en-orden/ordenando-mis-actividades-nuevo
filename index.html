@@ -1560,5 +1560,49 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
 })();
 
 </script>
+
+<style>
+#licencia-web-capa{position:fixed;inset:0;z-index:99999;background:#f4f5fb;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Arial,sans-serif}
+#licencia-web-caja{width:min(100%,460px);background:white;border-radius:18px;padding:26px;box-shadow:0 8px 32px #2222;color:#252744}
+#licencia-web-caja h2{margin:0 0 10px;color:#4034aa}
+#licencia-web-caja p{line-height:1.5}
+#licencia-web-clave{width:100%;padding:14px;border:1px solid #bbb;border-radius:9px;font-size:16px;margin:8px 0 14px}
+#licencia-web-activar{width:100%;padding:14px;border:0;border-radius:9px;background:#5546d8;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+#licencia-web-estado{min-height:24px;margin-top:12px;font-size:14px}
+</style>
+<script>
+(()=>{
+ const endpoint="https://clitpwuqggioosxkokow.supabase.co/functions/v1/activate-license";
+ const publishableKey="sb_publishable_tgUfLLfgUuQQAr0BZlhzLA_lOnsi8fC";
+ const claveGuardada="ordenando-licencia-web-v1";
+ const dispositivoGuardado="ordenando-dispositivo-web-v1";
+ const crearId=()=>{try{return crypto.randomUUID()}catch(e){return "web-"+Date.now()+"-"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
+ let deviceId=localStorage.getItem(dispositivoGuardado);
+ if(!deviceId){deviceId=crearId();localStorage.setItem(dispositivoGuardado,deviceId)}
+ const capa=document.createElement("div");
+ capa.id="licencia-web-capa";
+ capa.innerHTML='<section id="licencia-web-caja" role="dialog" aria-modal="true" aria-labelledby="licencia-web-titulo"><h2 id="licencia-web-titulo">Activá tu licencia</h2><p>Ingresá la clave de compra para usar Ordenando mis actividades en esta versión web.</p><label for="licencia-web-clave">Clave de licencia</label><input id="licencia-web-clave" type="text" autocomplete="off" placeholder="Pegá tu clave de licencia"><button id="licencia-web-activar" type="button">Activar licencia</button><p id="licencia-web-estado" role="status" aria-live="polite">Comprobando activación…</p></section>';
+ document.body.appendChild(capa);
+ const campo=capa.querySelector("#licencia-web-clave");
+ const boton=capa.querySelector("#licencia-web-activar");
+ const estado=capa.querySelector("#licencia-web-estado");
+ const mostrarError=(mensaje)=>{estado.textContent=mensaje;boton.disabled=false;boton.textContent="Activar licencia"};
+ async function activar(key){
+  boton.disabled=true;boton.textContent="Comprobando…";estado.textContent="Estamos verificando tu licencia.";
+  try{
+   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","apikey":publishableKey},body:JSON.stringify({licenseKey:key,platform:"web",deviceId})});
+   let datos={};try{datos=await respuesta.json()}catch(e){}
+   if(!respuesta.ok||datos.valid!==true){throw new Error(datos.error||"No se pudo activar la licencia. Revisá la clave e intentá nuevamente.")}
+   localStorage.setItem(claveGuardada,key);
+   capa.remove();
+  }catch(error){mostrarError(error.message||"No se pudo conectar. Revisá tu conexión e intentá nuevamente.")}
+ }
+ boton.addEventListener("click",()=>{const key=campo.value.trim();if(key.length<12){mostrarError("Ingresá una clave de licencia válida.");return}activar(key)});
+ campo.addEventListener("keydown",e=>{if(e.key==="Enter")boton.click()});
+ const guardada=localStorage.getItem(claveGuardada);
+ if(guardada){activar(guardada)}else{mostrarError("Ingresá tu clave para continuar.");campo.focus()}
+})();
+</script>
+
 </body>
 </html>
