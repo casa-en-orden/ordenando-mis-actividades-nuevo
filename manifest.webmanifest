@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Ordenando mis actividades",
+  "short_name": "Ordenando",
+  "description": "Organizá tus tareas, materias y actividades.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5faff",
+  "theme_color": "#4387bd",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "./icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
