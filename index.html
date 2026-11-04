@@ -1633,8 +1633,8 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
  if(!android||instalada()) return;
  aviso=document.createElement("aside");
  aviso.id="aviso-instalar-pwa";
- aviso.style.cssText="position:fixed;z-index:9998;left:12px;right:12px;bottom:12px;max-width:520px;margin:auto;padding:12px 14px;border:1px solid #d9e2f2;border-radius:14px;background:#fff;box-shadow:0 5px 24px #17255430;color:#283247;font:14px Arial,sans-serif;display:flex;gap:10px;align-items:center;justify-content:space-between";
- aviso.innerHTML='<span id="aviso-instalar-texto">Podés instalar esta aplicación en tu teléfono.</span><button id="boton-instalar-pwa" type="button" style="display:none;border:0;border-radius:9px;padding:10px 12px;background:#4387bd;color:white;font-weight:bold">Instalar</button>';
+ aviso.style.cssText="position:fixed;z-index:100000;left:12px;right:12px;bottom:12px;max-width:520px;margin:auto;padding:12px 14px;border:1px solid #d9e2f2;border-radius:14px;background:#fff;box-shadow:0 5px 24px #17255430;color:#283247;font:14px Arial,sans-serif;display:flex;gap:10px;align-items:center;justify-content:space-between";
+ aviso.innerHTML='<span id="aviso-instalar-texto">En Chrome, tocá ⋮ y elegí “Instalar aplicación” o “Agregar a pantalla principal”.</span><button id="boton-instalar-pwa" type="button" style="display:none;border:0;border-radius:9px;padding:10px 12px;background:#4387bd;color:white;font-weight:bold">Instalar</button>';
  document.body.appendChild(aviso);
  const boton=aviso.querySelector("#boton-instalar-pwa");
  const texto=aviso.querySelector("#aviso-instalar-texto");
@@ -1643,7 +1643,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
   texto.textContent="Instalá Ordenando mis actividades en tu teléfono.";
  });
  boton.addEventListener("click",async()=>{
-  if(!instalacionPendiente){texto.textContent="Abrí esta página en Chrome para instalarla.";return}
+  if(!instalacionPendiente){texto.textContent="En Chrome, abrí el menú ⋮ y elegí “Instalar aplicación” o “Agregar a pantalla principal”.";return}
   instalacionPendiente.prompt();
   await instalacionPendiente.userChoice;
   instalacionPendiente=null;
@@ -1651,7 +1651,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
  });
  window.addEventListener("appinstalled",()=>aviso.remove());
  setTimeout(()=>{
-  if(aviso.isConnected&&!instalacionPendiente) texto.textContent="Si abriste el enlace desde WhatsApp, elegí Abrir en Chrome para instalarla.";
+  if(aviso.isConnected&&!instalacionPendiente) texto.textContent="Si abriste el enlace desde WhatsApp, elegí “Abrir en Chrome” y luego el menú ⋮ para instalarla.";
  },2500);
 })();
 </script>
