@@ -6,6 +6,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#4387bd">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ordenando mis actividades">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="./icon-192.svg" type="image/svg+xml">
 <title>Ordenando mis actividades</title>
 <style>
 *{box-sizing:border-box}
@@ -1574,23 +1580,34 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
 (()=>{
  const endpoint="https://clitpwuqggioosxkokow.supabase.co/functions/v1/activate-license";
  const publishableKey="sb_publishable_tgUfLLfgUuQQAr0BZlhzLA_lOnsi8fC";
- const claveGuardada="ordenando-licencia-web-v1";
- const dispositivoGuardado="ordenando-dispositivo-web-v1";
- const crearId=()=>{try{return crypto.randomUUID()}catch(e){return "web-"+Date.now()+"-"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
- let deviceId=localStorage.getItem(dispositivoGuardado);
- if(!deviceId){deviceId=crearId();localStorage.setItem(dispositivoGuardado,deviceId)}
+ let platform="";
+ try{
+  if(window.ordenandoApp&&window.ordenandoApp.platform==="windows") platform="windows";
+  else if(window.Capacitor&&typeof window.Capacitor.getPlatform==="function"&&window.Capacitor.getPlatform()==="android") platform="android";
+  else if(/Android/i.test(navigator.userAgent)) platform="android";
+ }catch(e){}
  const capa=document.createElement("div");
  capa.id="licencia-web-capa";
- capa.innerHTML='<section id="licencia-web-caja" role="dialog" aria-modal="true" aria-labelledby="licencia-web-titulo"><h2 id="licencia-web-titulo">Activá tu licencia</h2><p>Ingresá la clave de compra para usar Ordenando mis actividades en esta versión web.</p><label for="licencia-web-clave">Clave de licencia</label><input id="licencia-web-clave" type="text" autocomplete="off" placeholder="Pegá tu clave de licencia"><button id="licencia-web-activar" type="button">Activar licencia</button><p id="licencia-web-estado" role="status" aria-live="polite">Comprobando activación…</p></section>';
+ capa.innerHTML='<section id="licencia-web-caja" role="dialog" aria-modal="true" aria-labelledby="licencia-web-titulo"><h2 id="licencia-web-titulo">Activá tu licencia</h2><p>Ingresá la clave de compra para usar Ordenando mis actividades en este dispositivo.</p><label for="licencia-web-clave">Clave de licencia</label><input id="licencia-web-clave" type="text" autocomplete="off" placeholder="Pegá tu clave de licencia"><button id="licencia-web-activar" type="button">Activar licencia</button><p id="licencia-web-estado" role="status" aria-live="polite">Comprobando activación…</p></section>';
  document.body.appendChild(capa);
  const campo=capa.querySelector("#licencia-web-clave");
  const boton=capa.querySelector("#licencia-web-activar");
  const estado=capa.querySelector("#licencia-web-estado");
  const mostrarError=(mensaje)=>{estado.textContent=mensaje;boton.disabled=false;boton.textContent="Activar licencia"};
+ if(!platform){
+  mostrarError("Esta versión debe abrirse desde la aplicación instalada en Android o Windows.");
+  boton.disabled=true;
+  return;
+ }
+ const claveGuardada="ordenando-licencia-"+platform+"-v2";
+ const dispositivoGuardado="ordenando-dispositivo-"+platform+"-v2";
+ const crearId=()=>{try{return crypto.randomUUID()}catch(e){return platform+"-"+Date.now()+"-"+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)}};
+ let deviceId=localStorage.getItem(dispositivoGuardado);
+ if(!deviceId){deviceId=crearId();localStorage.setItem(dispositivoGuardado,deviceId)}
  async function activar(key){
   boton.disabled=true;boton.textContent="Comprobando…";estado.textContent="Estamos verificando tu licencia.";
   try{
-   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","apikey":publishableKey},body:JSON.stringify({licenseKey:key,platform:"web",deviceId})});
+   const respuesta=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","apikey":publishableKey},body:JSON.stringify({licenseKey:key,platform,deviceId})});
    let datos={};try{datos=await respuesta.json()}catch(e){}
    if(!respuesta.ok||datos.valid!==true){throw new Error(datos.error||"No se pudo activar la licencia. Revisá la clave e intentá nuevamente.")}
    localStorage.setItem(claveGuardada,key);
@@ -1601,6 +1618,41 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)revisarRec
  campo.addEventListener("keydown",e=>{if(e.key==="Enter")boton.click()});
  const guardada=localStorage.getItem(claveGuardada);
  if(guardada){activar(guardada)}else{mostrarError("Ingresá tu clave para continuar.");campo.focus()}
+})();
+</script>
+
+
+<script>
+(()=>{
+ if(!("serviceWorker" in navigator)) return;
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+ let instalacionPendiente=null;
+ let aviso=null;
+ const android=/Android/i.test(navigator.userAgent);
+ const instalada=()=>window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+ if(!android||instalada()) return;
+ aviso=document.createElement("aside");
+ aviso.id="aviso-instalar-pwa";
+ aviso.style.cssText="position:fixed;z-index:100000;left:12px;right:12px;bottom:12px;max-width:520px;margin:auto;padding:12px 14px;border:1px solid #d9e2f2;border-radius:14px;background:#fff;box-shadow:0 5px 24px #17255430;color:#283247;font:14px Arial,sans-serif;display:flex;gap:10px;align-items:center;justify-content:space-between";
+ aviso.innerHTML='<span id="aviso-instalar-texto">En Chrome, tocá ⋮ y elegí “Instalar aplicación” o “Agregar a pantalla principal”.</span><button id="boton-instalar-pwa" type="button" style="display:none;border:0;border-radius:9px;padding:10px 12px;background:#4387bd;color:white;font-weight:bold">Instalar</button>';
+ document.body.appendChild(aviso);
+ const boton=aviso.querySelector("#boton-instalar-pwa");
+ const texto=aviso.querySelector("#aviso-instalar-texto");
+ window.addEventListener("beforeinstallprompt",event=>{
+  event.preventDefault();instalacionPendiente=event;boton.style.display="block";
+  texto.textContent="Instalá Ordenando mis actividades en tu teléfono.";
+ });
+ boton.addEventListener("click",async()=>{
+  if(!instalacionPendiente){texto.textContent="En Chrome, abrí el menú ⋮ y elegí “Instalar aplicación” o “Agregar a pantalla principal”.";return}
+  instalacionPendiente.prompt();
+  await instalacionPendiente.userChoice;
+  instalacionPendiente=null;
+  aviso.remove();
+ });
+ window.addEventListener("appinstalled",()=>aviso.remove());
+ setTimeout(()=>{
+  if(aviso.isConnected&&!instalacionPendiente) texto.textContent="Si abriste el enlace desde WhatsApp, elegí “Abrir en Chrome” y luego el menú ⋮ para instalarla.";
+ },2500);
 })();
 </script>
 

@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - corregir-licencias-android-windows
 
 permissions:
   contents: read
